@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# StreetBucks
 
-## Getting Started
+## Description
 
-First, run the development server:
+The website for cafe management I and my teammates had done as a college project, and soon will be scaled up to become full POS system as the graduation project.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scopes of the Project
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- 3 roles: staff, manager, administrator.
+- Database server that supports the cafe branches.
+- Analytical dashboard for each branch sales.
+- The software is in the form of web application.
+- Staff attendance inspection by manager.
+- PDF receipt generation and store the files in server.
+- Stock tracking for recipes of menus.
+- CRUD operations on menus of the franchise by administrator.
+- Business analysis of the franchise by administrator.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- **Client:** Next.js TypeScript, Bootstrap.
+- **Server:** NestJS.
+- **Database:** PostgreSQL, Prisma (ORM.)
+- **Deployment, CI/CD:** Docker, Nginx, GitHub Actions.
+- **Testing:** Jest.
+- **Data Analysis:** Python, NumPy, Pandas, or any related tools.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Resources
 
-## Deploy on Vercel
+- API Specification in Postman/Swagger
+- ER Diagram in draw.io
+- UML Diagrams for Key Operations
+- Figma Design
+- Markdown Documentation
+- Git Repository https://github.com/donny444/cafebucks
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---

@@ -1,13 +1,19 @@
+"use client";
+
 import { useState, useEffect } from "react";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+import axios, { AxiosResponse } from "axios";
 
 import { Container, Row, Col, Button } from "react-bootstrap";
 
 import { Bar, Pie, Line } from "react-chartjs-2";
 import {
   Chart,
+  ChartData,
+  ChartOptions,
   BarController,
   BarElement,
   CategoryScale,
@@ -18,7 +24,8 @@ import {
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  PointElement,
 } from "chart.js";
 Chart.register(
   BarController,
@@ -29,9 +36,10 @@ Chart.register(
   ArcElement,
   LineController,
   LineElement,
+  PointElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 );
 
 import { barChartData, barChartOptions } from "../data/bar_chart.ts";
@@ -50,7 +58,7 @@ export default function InsightsPage() {
       </Row>
       <Row className="d-flex justify-content-between align-items-center">
         <Col>
-          <SalesByPeriodsChart />
+          <SalesByPeriodChart />
         </Col>
       </Row>
     </Container>
@@ -67,13 +75,12 @@ function TopMenusChart() {
   )
 }
 
-function SalesByPeriodsChart() {
-  const [data, setData] = useState(null);
+function SalesByPeriodChart() {
   const [period, setPeriod] = useState<PeriodEnum>(PeriodEnum.WEEKLY);
   
   return (
     <Container>
-      <div className="btn-group mb-3" role="group" aria-label="Time period">
+      <Container className="btn-group mb-3" role="group" aria-label="Time period">
         <Button
           variant={period === PeriodEnum.WEEKLY ? "primary" : "outline-primary"}
           onClick={() => setPeriod(PeriodEnum.WEEKLY)}
@@ -92,13 +99,96 @@ function SalesByPeriodsChart() {
         >
           {PeriodEnum.ANNUAL}
         </Button>
-      </div>
+      </Container>
       { period === PeriodEnum.WEEKLY || period === PeriodEnum.MONTHLY ? (
-        <Line data={lineChartData} options={lineChartOptions} />
+        <LineChartSales lineChartData={lineChartData} lineChartOptions={lineChartOptions} period={period} />
       ) : <></> }
       { period === PeriodEnum.ANNUAL ? (
         <Bar data={barChartData} options={barChartOptions} />
       ): <></> }
     </Container>
   )
+}
+
+interface LineChartSalesProps {
+  lineChartData: ChartData<"line">;
+  lineChartOptions: ChartOptions<"line">;
+  period: PeriodEnum;
+}
+function LineChartSales({ lineChartData, lineChartOptions, period }: LineChartSalesProps) {
+  const [chartData, setChartData] = useState(lineChartData);
+  const [chartOptions, setChartOptions] = useState(lineChartOptions);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchSalesData = async () => {
+      try {
+        setLoading(true);
+
+        let url: string = "";
+        let chartTitle: string = "";
+        switch (period) {
+          case PeriodEnum.WEEKLY:
+            url = `http://localhost:8085/insights/sales-in-week`;
+            chartTitle = "Sales in This Week";
+            break;
+          case PeriodEnum.MONTHLY:
+            url = `http://localhost:8085/insights/sales-in-month`;
+            chartTitle = "Sales in This Month";
+            break;
+          default:
+            break;
+        }
+        const insightResponse: AxiosResponse = await axios.get(url);
+        if (insightResponse.status !== 200) {
+          setError("Unable to fetch sales data");
+          throw new Error("Unable to fetch sales data");
+        }
+
+        const { labels, data } = insightResponse.data.insight;
+        const { message } = insightResponse.data;
+        setChartData({
+          ...lineChartData,
+          labels: labels,
+          datasets: [
+            {
+              ...lineChartData.datasets[0],
+              data: data,
+            },
+          ],
+        });
+        setChartOptions({
+          ...lineChartOptions,
+          plugins: {
+            ...lineChartOptions.plugins,
+            title: {
+              ...lineChartOptions.plugins?.title,
+              text: chartTitle,
+            },
+          },
+        })
+        console.log(`Fetched ${period} sales data: `, message);
+      } catch (err) {
+        setError("Failed to fetch sales by period.");
+        console.error("Error fetching sales by period:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchSalesData();
+  }, [period, lineChartData, lineChartOptions]);
+
+  return (
+    <Container>
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p>{error}</p>
+      ) : (
+        <Line data={chartData} options={chartOptions} />
+      )}
+    </Container>
+  );
 }

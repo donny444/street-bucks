@@ -4,12 +4,13 @@ export const pieChartOptions: ChartOptions<"pie"> = {
   responsive: true,
   plugins: {
     legend: {
-      position: "top" as const,
+      position: "bottom" as const,
     },
     title: {
       display: true,
       text: "Top 5 Sold Menus",
       color: "black",
+      font: { size: 18 },
     },
   },
 };
@@ -24,7 +25,7 @@ export const pieChartData: ChartData<"pie"> = {
   ],
   datasets: [
     {
-      label: "Sales",
+      label: "Quantity sold",
       data: [],
       backgroundColor: [
         "blue",

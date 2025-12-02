@@ -9,8 +9,20 @@ export const lineChartOptions: ChartOptions<"line"> = {
     },
     title: {
       display: true,
-      text: "",
+      text: "Sales in This Week/Month",
       color: "black",
+      font: { size: 18 },
+    },
+  },
+  scales: {
+    x: {
+      title: {
+        display: true,
+        text: "Days of week/month",
+      },
+    },
+    y: {
+      beginAtZero: true,
     },
   },
 };

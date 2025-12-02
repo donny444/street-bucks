@@ -1,0 +1,12 @@
+.git
+.next
+node_modules
+notes
+presentation
+server
+.dockerignore
+.gitignore
+.gitmodules
+docker-compose.yml
+package-lock.json
+README.md

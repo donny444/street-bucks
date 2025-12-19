@@ -1,35 +1,34 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-// import "./globals.css";
+import React from "react";
+import "./globals.css";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
-
-export const metadata: Metadata = {
-  title: "StreetBucks",
-  description: "POS System for Cafe Franchise",
-  icons: {
-    icon: "/favicon.ico",
-  },
+export const metadata = {
+  title: "Street Bucks",
+  description: "Admin dashboard",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
+      <body>
+        <header className="site-header">
+          <div className="container">
+            <a className="brand" href="/">Street Bucks</a>
+            <nav className="nav">
+              <a href="/dashboard">Dashboard</a>
+              <a href="/orders">Orders</a>
+              <a href="/inventory">Inventory</a>
+              <a href="/employees">Employees</a>
+              <a href="/branches">Branches</a>
+              <a href="/login">Login</a>
+            </nav>
+          </div>
+        </header>
+
+        <main className="container main">{children}</main>
+
+        <footer className="site-footer">
+          <div className="container">© {new Date().getFullYear()} Street Bucks</div>
+        </footer>
       </body>
     </html>
   );

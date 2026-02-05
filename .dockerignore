@@ -1,8 +1,7 @@
 .git
 .next
 node_modules
-notes
-presentation
+misc
 server
 .dockerignore
 .gitignore

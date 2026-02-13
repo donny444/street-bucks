@@ -11,7 +11,7 @@ export const lineChartOptions: ChartOptions<"line"> = {
       display: true,
       text: "Sales in This Week/Month",
       color: "black",
-      font: { size: 18 },
+      font: { size: 18, family: "'Roboto', sans-serif", weight: "bold" },
     },
   },
   scales: {

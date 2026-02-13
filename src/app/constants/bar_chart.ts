@@ -10,7 +10,7 @@ export const barChartOptions: ChartOptions<"bar"> = {
       display: true,
       text: "Annual Sales, Stacked by Menu Type",
       color: "black",
-      font: { size: 18 },
+      font: { size: 18, family: "'Roboto', sans-serif", weight: "bold" },
     },
   },
   scales: {

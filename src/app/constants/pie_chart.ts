@@ -10,7 +10,7 @@ export const pieChartOptions: ChartOptions<"pie"> = {
       display: true,
       text: "Top 5 Sold Menus",
       color: "black",
-      font: { size: 18 },
+      font: { size: 24, family: "'Roboto', sans-serif", weight: "bold" },
     },
   },
 };

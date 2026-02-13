@@ -1,34 +1,33 @@
 import React from "react";
 import "./globals.css";
 
+import { unstable_noStore as noStore } from "next/cache";
+
+import "bootstrap/dist/css/bootstrap.min.css";
+import { Container, Row, Col } from "react-bootstrap";
+
 export const metadata = {
-  title: "Street Bucks",
-  description: "Admin dashboard",
+  title: "StreetBucks",
+  description: "Cafeteria POS",
 };
 
+import Sidebar from "./components/sidebar";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  noStore();
+
   return (
     <html lang="en">
       <body>
-        <header className="site-header">
-          <div className="container">
-            <a className="brand" href="/">Street Bucks</a>
-            <nav className="nav">
-              <a href="/dashboard">Dashboard</a>
-              <a href="/orders">Orders</a>
-              <a href="/inventory">Inventory</a>
-              <a href="/employees">Employees</a>
-              <a href="/branches">Branches</a>
-              <a href="/login">Login</a>
-            </nav>
-          </div>
-        </header>
-
-        <main className="container main">{children}</main>
-
-        <footer className="site-footer">
-          <div className="container">© {new Date().getFullYear()} Street Bucks</div>
-        </footer>
+        <Row>
+          <Sidebar />
+          <Col>
+            <Container>{children}</Container>
+          </Col>
+        </Row>
+        <Row>
+          <Container>© {new Date().getFullYear()} StreetBucks</Container>
+        </Row>
       </body>
     </html>
   );

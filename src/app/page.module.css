@@ -1,9 +1,9 @@
 .page {
-  --gray-rgb: 0, 0, 0;
+  --gray-rgb: 0, 0, 0; /* Keep for internal use if needed, or remove if unused */
   --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
   --gray-alpha-100: rgba(var(--gray-rgb), 0.05);
 
-  --button-primary-hover: #383838;
+  --button-primary-hover: var(--sb-forest-green);
   --button-secondary-hover: #f2f2f2;
 
   display: grid;
@@ -13,7 +13,7 @@
   min-height: 100svh;
   padding: 80px;
   gap: 64px;
-  font-family: var(--font-geist-sans);
+  font-family: inherit; /* Inherit global font (Helvetica Light) */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -35,11 +35,11 @@
 }
 
 .main ol {
-  font-family: var(--font-geist-mono);
+  font-family: inherit;
   padding-left: 0;
   margin: 0;
-  font-size: 14px;
-  line-height: 24px;
+  font-size: 18px; /* Body size */
+  line-height: 1.5;
   letter-spacing: -0.01em;
   list-style-position: inside;
 }
@@ -49,10 +49,10 @@
 }
 
 .main code {
-  font-family: inherit;
+  font-family: monospace; /* Simple monospace */
   background: var(--gray-alpha-100);
   padding: 2px 4px;
-  border-radius: 4px;
+  border-radius: 0; /* No border radius */
   font-weight: 600;
 }
 
@@ -63,7 +63,7 @@
 
 .ctas a {
   appearance: none;
-  border-radius: 128px;
+  border-radius: 0; /* No border radius */
   height: 48px;
   padding: 0 20px;
   border: none;
@@ -79,13 +79,14 @@
 }
 
 a.primary {
-  background: var(--foreground);
-  color: var(--background);
+  background: var(--sb-primary);
+  color: white;
   gap: 8px;
 }
 
 a.secondary {
-  border-color: var(--gray-alpha-200);
+  border-color: var(--sb-secondary);
+  color: var(--sb-dark-green);
   min-width: 180px;
 }
 

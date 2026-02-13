@@ -1,9 +1,27 @@
 /* Minimal global styles used by the app layout */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap');
+
 :root {
+  /* Palette */
+  --sb-primary: #2c8c64;
+  --sb-secondary: #9adfc2;
+  --sb-dark-green: #046d3c;
+  --sb-medium-green: #519a7b;
+  --sb-light-green: #acccbc;
+  --sb-forest-green: #3c8464;
+
+  /* Bootstrap Redefinitions */
+  --bs-primary: var(--sb-primary);
+  --bs-secondary: var(--sb-medium-green);
+  --bs-success: var(--sb-dark-green);
+  --bs-info: var(--sb-secondary);
+  --bs-body-bg: #fafafa;
+  --bs-body-color: #111827;
+  
   --bg: #fafafa;
   --text: #111827;
   --muted: #6b7280;
-  --accent: #0366d6;
+  --accent: var(--sb-primary);
   --container: 1024px;
 }
 
@@ -11,44 +29,182 @@
   :root {
     --bg: #0a0a0a;
     --text: #ededed;
+    --bs-body-bg: #0a0a0a;
+    --bs-body-color: #ededed;
   }
 }
 
 html,
 body {
-  max-width: 100vw;
+  max-width: 100%;
   overflow-x: hidden;
 }
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  font-family: "Helvetica", "Arial", sans-serif;
+  font-weight: 300; /* Light */
+  font-size: 18px; /* 18-20px range */
+  line-height: 1.5;
   background: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  color: var(--sb-dark-green);
+}
+
+h1 { font-size: 32px; }
+h2 { font-size: 28px; }
+h3 { font-size: 24px; }
+
+/* Enforce no border radius */
 * {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+  border-radius: 0 !important;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+/* Bootstrap Button Overrides for consistency */
+.btn {
+  border-radius: 0 !important;
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 10px 20px;
+  border: 2px solid transparent;
 }
 
-.container {
-  max-width: var(--container);
-  margin: 0 auto;
-  padding: 1rem;
+.btn-primary {
+  background-color: var(--sb-primary) !important;
+  border-color: var(--sb-primary) !important;
+  color: white !important;
 }
 
+.btn-primary:hover, .btn-primary:active, .btn-primary:focus {
+  background-color: var(--sb-forest-green) !important;
+  border-color: var(--sb-forest-green) !important;
+}
+
+.btn-secondary {
+  background-color: var(--sb-secondary) !important;
+  border-color: var(--sb-secondary) !important;
+  color: var(--sb-dark-green) !important;
+}
+
+.btn-secondary:hover {
+  background-color: var(--sb-medium-green) !important;
+  border-color: var(--sb-medium-green) !important;
+}
+
+.btn-warning {
+  background-color: var(--sb-medium-green) !important;
+  border-color: var(--sb-medium-green) !important;
+  color: white !important;
+}
+
+.btn-warning:hover {
+  background-color: var(--sb-forest-green) !important;
+  border-color: var(--sb-forest-green) !important;
+}
+
+.btn-danger {
+  background-color: var(--sb-dark-green) !important;
+  border-color: var(--sb-dark-green) !important;
+  color: white !important;
+}
+
+.btn-danger:hover {
+  background-color: #000 !important; /* Make it distinctively dark on hover */
+  border-color: #000 !important;
+}
+
+.btn-outline-primary {
+  color: var(--sb-primary) !important;
+  border-color: var(--sb-primary) !important;
+  background-color: transparent !important;
+}
+
+.btn-outline-primary:hover, .btn-outline-primary.active {
+  background-color: var(--sb-primary) !important;
+  color: white !important;
+}
+
+/* Card Overrides */
+.card {
+  border-radius: 0 !important;
+  border: 1px solid var(--sb-light-green) !important;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  background-color: white;
+}
+
+.card-title {
+  font-family: "Roboto", sans-serif;
+  color: var(--sb-primary);
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.card-text {
+  font-family: "Helvetica", "Arial", sans-serif;
+  font-weight: 300;
+  color: var(--text);
+}
+
+/* Table Overrides */
+.table {
+  color: var(--text) !important;
+  --bs-table-striped-bg: rgba(154, 223, 194, 0.1);
+}
+
+.table th {
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  color: var(--sb-dark-green);
+  border-bottom: 2px solid var(--sb-secondary) !important;
+  background-color: transparent;
+}
+
+.table td {
+  font-family: "Helvetica", "Arial", sans-serif;
+  font-weight: 300;
+  border-color: var(--sb-light-green) !important;
+  vertical-align: middle;
+}
+
+/* Modal Overrides */
+.modal-content {
+  border-radius: 0 !important;
+  border: 1px solid var(--sb-primary) !important;
+}
+
+.modal-header {
+  border-bottom-color: var(--sb-secondary) !important;
+  color: var(--sb-primary);
+}
+
+.modal-title {
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+}
+
+.modal-footer {
+  border-top-color: var(--sb-secondary) !important;
+}
+
+/* Image Overrides */
+.card-img, .card-img-top, .card-img-bottom {
+  border-radius: 0 !important;
+}
+
+
+/* Navbar */
 .site-header {
   background: white;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 2px solid var(--sb-secondary);
   position: sticky;
   top: 0;
   z-index: 40;
@@ -61,15 +217,22 @@ a {
 }
 
 .brand {
+  font-family: "Roboto", sans-serif;
+  font-size: 24px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--sb-primary);
   text-decoration: none;
 }
 
 .nav a {
   margin-left: 1rem;
-  color: var(--muted);
+  color: var(--sb-dark-green);
   text-decoration: none;
+  font-weight: 300;
+}
+
+.nav a:hover {
+  color: var(--sb-primary);
 }
 
 .main {

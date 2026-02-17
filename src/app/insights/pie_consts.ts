@@ -16,24 +16,12 @@ export const pieChartOptions: ChartOptions<"pie"> = {
 };
 
 export const pieChartData: ChartData<"pie"> = {
-  labels: [
-    "",
-    "",
-    "",
-    "",
-    "",
-  ],
+  labels: ["", "", "", "", ""],
   datasets: [
     {
       label: "Quantity sold",
       data: [],
-      backgroundColor: [
-        "blue",
-        "orange",
-        "green",
-        "yellow",
-        "purple",
-      ],
+      backgroundColor: ["blue", "orange", "green", "yellow", "purple"],
     },
   ],
 };

@@ -56,4 +56,4 @@ export const barChartData: ChartData<"bar"> = {
       backgroundColor: "orange",
     },
   ],
-}
+};

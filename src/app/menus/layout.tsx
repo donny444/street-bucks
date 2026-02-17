@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React from "react";
 
@@ -9,7 +9,11 @@ import { Container, Tabs, Tab, Stack } from "react-bootstrap";
 
 import { MenuCategory } from "./menu_types";
 
-export default function MenuLayout({ children }: { children: React.ReactNode }) {
+export default function MenuLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const router = useRouter();
 
   return (
@@ -24,9 +28,7 @@ export default function MenuLayout({ children }: { children: React.ReactNode }) 
         <Tab eventKey={MenuCategory.ICED} title={MenuCategory.ICED} />
         <Tab eventKey={MenuCategory.BAKERY} title={MenuCategory.BAKERY} />
       </Tabs>
-      <Container>
-        {children}
-      </Container>
+      <Container>{children}</Container>
     </Stack>
   );
 }

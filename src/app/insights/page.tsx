@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import axios, { AxiosResponse } from "axios";
@@ -44,21 +43,30 @@ Chart.register(
   Legend
 );
 
-import { barChartData, barChartOptions } from "../data/bar_chart.ts";
-import { pieChartData, pieChartOptions } from "../data/pie_chart.ts";
-import { lineChartData, lineChartOptions } from "../data/line_chart.ts";
+import { barChartData, barChartOptions } from "./bar_consts.ts";
+import { pieChartData, pieChartOptions } from "./pie_consts.ts";
+import { lineChartData, lineChartOptions } from "./line_consts.ts";
 
 import {
   ResponseForBarChart,
   ResponseForLineChart,
   ResponseForPieChart,
   CategoricalSales,
-} from "../dtos/insight_dtos.ts";
-import PeriodEnum from "../interfaces/period_enum.ts";
+  PeriodEnum,
+} from "./insight_types.ts";
 
 export default function InsightsPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const branchId = localStorage.getItem("branchId");
+    if (!branchId) {
+      router.push("/branches");
+    }
+  }, [router]);
+
   return (
-    <Container className="m-3 gap-2">
+    <Container className="bg-light p-3 gap-2">
       <Row className="d-flex justify-content-between align-items-center">
         <Col>
           <TopMenusChart />
@@ -75,7 +83,7 @@ export default function InsightsPage() {
 
 function TopMenusChart() {
   return (
-    <Container>
+    <Container className="bg-white p-3 rounded-3 mb-4">
       <PieChartSales
         pieChartData={pieChartData}
         pieChartOptions={pieChartOptions}
@@ -132,15 +140,15 @@ function PieChartSales({ pieChartData, pieChartOptions }: PieChartSalesProps) {
   }, [pieChartData]);
 
   return (
-    <Container>
+    <>
       {loading ? (
-        <p>Loading...</p>
+        <p className="h3">Loading...</p>
       ) : error ? (
-        <p>{error}</p>
+        <p className="h3">{error}</p>
       ) : (
         <Pie data={chartData} options={chartOptions} />
       )}
-    </Container>
+    </>
   );
 }
 
@@ -148,7 +156,7 @@ function SalesByPeriodChart() {
   const [period, setPeriod] = useState<PeriodEnum>(PeriodEnum.WEEKLY);
 
   return (
-    <Container>
+    <Container className="bg-white p-3 rounded-3 mb-4">
       <Container
         className="btn-group mb-3"
         role="group"
@@ -260,9 +268,13 @@ function LineChartSales({
             x: {
               title: {
                 ...lineChartOptions.scales?.x?.title,
-                text: `${period === PeriodEnum.WEEKLY
-                ? "Days of week" : period === PeriodEnum.MONTHLY
-                ? "Days of month" : "Days of week/month"}`,
+                text: `${
+                  period === PeriodEnum.WEEKLY
+                    ? "Days of week"
+                    : period === PeriodEnum.MONTHLY
+                      ? "Days of month"
+                      : "Days of week/month"
+                }`,
               },
             },
           },
@@ -280,15 +292,15 @@ function LineChartSales({
   }, [period, lineChartData, lineChartOptions]);
 
   return (
-    <Container>
+    <>
       {loading ? (
-        <p>Loading...</p>
+        <p className="h3">Loading...</p>
       ) : error ? (
-        <p>{error}</p>
+        <p className="h3">{error}</p>
       ) : (
         <Line data={chartData} options={chartOptions} />
       )}
-    </Container>
+    </>
   );
 }
 
@@ -321,7 +333,8 @@ function BarChartSales({ barChartData }: BarChartSalesProps) {
           (number | [number, number] | null)[]
         >[] = chartData.datasets.map((dataset: ChartDataset<"bar">) => {
           const matchedInsightEntry = insight.find(
-            (entry: CategoricalSales) => entry.label === dataset.label?.toLowerCase()
+            (entry: CategoricalSales) =>
+              entry.label === dataset.label?.toLowerCase()
           );
           if (matchedInsightEntry) {
             return {
@@ -352,14 +365,14 @@ function BarChartSales({ barChartData }: BarChartSalesProps) {
   }, [barChartData]);
 
   return (
-    <Container>
+    <>
       {loading ? (
-        <p>Loading...</p>
+        <p className="h3">Loading...</p>
       ) : error ? (
-        <p>{error}</p>
+        <p className="h3">{error}</p>
       ) : (
         <Bar data={chartData} options={barChartOptions} />
       )}
-    </Container>
+    </>
   );
 }

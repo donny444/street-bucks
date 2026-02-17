@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FetchStocks } from "@/app/fetches/stock_fetch";
+import { FetchStocks } from "./stock_fetches";
 import { Stock } from "./stock_types";
 
 import "bootstrap/dist/css/bootstrap.min.css";

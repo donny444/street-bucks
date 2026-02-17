@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FetchTodayOrders } from "@/app/fetches/order_fetch";
+import { FetchTodayOrders } from "./order_fetches";
 import { Order } from "./order_types";
 
 import Link from "next/link";
@@ -56,7 +56,7 @@ export default function TodayOrders(): React.JSX.Element {
         </Modal>
       ) : (
         <>
-          <h1>Today&aposs Orders</h1>
+          <h1>Today&apos;s Orders</h1>
           <Table striped bordered hover>
             <thead>
               <tr>

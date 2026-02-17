@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Nav, Row, Col } from 'react-bootstrap';
-import { 
-  LayoutDashboard, 
-  Coffee, 
-  Package, 
-  ShoppingCart, 
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Nav, Row, Col } from "react-bootstrap";
+import {
+  LayoutDashboard,
+  Coffee,
+  Package,
+  ShoppingCart,
   Users,
-  Menu as MenuIcon
-} from 'lucide-react';
+  Menu as MenuIcon,
+} from "lucide-react";
 
 interface NavItemProps {
   to: string;
@@ -22,18 +22,19 @@ interface NavItemProps {
 function NavItem({ to, icon, label, collapsed }: NavItemProps): JSX.Element {
   const location = usePathname();
   const isActive = location.startsWith(to);
-  
+
   return (
     <Nav.Item className="mb-1">
       <Link
         href={to}
         className={`
           flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
-          ${isActive 
-            ? 'bg-sidebar-accent text-sidebar-primary' 
-            : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
+          ${
+            isActive
+              ? "bg-sidebar-accent text-sidebar-primary"
+              : "text-sidebar-foreground hover:bg-sidebar-accent/50"
           }
-          ${collapsed ? 'justify-center' : ''}
+          ${collapsed ? "justify-center" : ""}
         `}
       >
         {icon}
@@ -41,17 +42,21 @@ function NavItem({ to, icon, label, collapsed }: NavItemProps): JSX.Element {
       </Link>
     </Nav.Item>
   );
-};
+}
 
 export default function Sidebar(): JSX.Element {
   const [collapsed, setCollapsed] = useState(false);
 
   const navItems = [
-    { to: '/insights', icon: <LayoutDashboard size={22} />, label: 'Dashboard' },
-    { to: '/menus', icon: <Coffee size={22} />, label: 'Menus' },
-    { to: '/orders', icon: <ShoppingCart size={22} />, label: 'Orders' },
-    { to: '/stocks', icon: <Package size={22} />, label: 'Stocks' },
-    { to: '/users', icon: <Users size={22} />, label: 'Users' },
+    {
+      to: "/insights",
+      icon: <LayoutDashboard size={22} />,
+      label: "Dashboard",
+    },
+    { to: "/menus", icon: <Coffee size={22} />, label: "Menus" },
+    { to: "/orders", icon: <ShoppingCart size={22} />, label: "Orders" },
+    { to: "/stocks", icon: <Package size={22} />, label: "Stocks" },
+    { to: "/users", icon: <Users size={22} />, label: "Users" },
   ];
 
   return (
@@ -59,7 +64,7 @@ export default function Sidebar(): JSX.Element {
       xs={collapsed ? 1 : 3}
       className={`
         bg-sidebar h-screen fixed left-0 top-0 z-50 transition-all duration-300
-        ${collapsed ? 'w-20' : 'w-64'}
+        ${collapsed ? "w-20" : "w-64"}
       `}
     >
       {/* Logo & Toggle */}
@@ -102,4 +107,4 @@ export default function Sidebar(): JSX.Element {
       </div>
     </Col>
   );
-};
+}

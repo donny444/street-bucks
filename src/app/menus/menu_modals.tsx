@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import Image from "next/image";
 
-import { include } from "@/app/contexts/store/cart_slice";
+import { include } from "./cart_slice";
 import { useDispatch } from "react-redux";
 
 import { Menu } from "./menu_types";
@@ -66,7 +66,9 @@ export function MenuModal({
             dispatch(
               include({
                 name: menu.name,
-                quantity,
+                price: menu.price,
+                imagePath: menu.imagePath,
+                quantity: quantity,
               })
             );
           }}

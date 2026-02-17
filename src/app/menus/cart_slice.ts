@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { Menu } from "@/app/menus/menu_types";
+import { Menu } from "./menu_types";
 
 type CartItem = {
   name: Menu["name"];
@@ -9,13 +9,26 @@ type CartItem = {
   quantity: number;
 };
 
-type ItemDetail = {
-  imagePath: Menu["imagePath"];
-  subtotal: Menu["price"];
+type AddItem = {
+  name: CartItem["name"];
+  price: CartItem["price"];
+  imagePath: CartItem["imagePath"];
   quantity: CartItem["quantity"];
 };
 
-export type CartState = Record<string, ItemDetail>;
+type EditItem = {
+  name: CartItem["name"];
+  price: CartItem["price"];
+  quantity: CartItem["quantity"];
+};
+
+export type ItemDetail = {
+  imagePath: CartItem["imagePath"];
+  subtotal: CartItem["price"];
+  quantity: CartItem["quantity"];
+};
+
+export type CartState = Record<CartItem["name"], ItemDetail>;
 
 const initialCart: CartState = {};
 
@@ -23,7 +36,7 @@ const cartSlice = createSlice({
   name: "cart",
   initialState: initialCart,
   reducers: {
-    include: (state, action: PayloadAction<CartItem>) => {
+    include: (state, action: PayloadAction<AddItem>) => {
       const { name, price, imagePath, quantity } = action.payload;
 
       if (!state[name]) {
@@ -40,10 +53,10 @@ const cartSlice = createSlice({
       item.subtotal += price * quantity;
       item.quantity += quantity;
     },
-    exclude: (state, action: PayloadAction<string>) => {
+    exclude: (state, action: PayloadAction<Menu["name"]>) => {
       delete state[action.payload];
     },
-    edit: (state, action: PayloadAction<CartItem>) => {
+    edit: (state, action: PayloadAction<EditItem>) => {
       const { name, price, quantity } = action.payload;
       if (!state[name]) {
         return;
@@ -55,7 +68,7 @@ const cartSlice = createSlice({
       state[name].subtotal = price * quantity;
       state[name].quantity = quantity;
     },
-    increment: (state, action: PayloadAction<string>) => {
+    increment: (state, action: PayloadAction<Menu["name"]>) => {
       const name = action.payload;
       if (!state[name]) {
         return;
@@ -64,7 +77,7 @@ const cartSlice = createSlice({
       state[name].subtotal += state[name].subtotal / state[name].quantity;
       state[name].quantity += 1;
     },
-    decrement: (state, action: PayloadAction<string>) => {
+    decrement: (state, action: PayloadAction<Menu["name"]>) => {
       const name = action.payload;
       if (!state[name]) {
         return;

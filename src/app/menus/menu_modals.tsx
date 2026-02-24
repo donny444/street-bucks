@@ -35,6 +35,7 @@ export function MenuModal({
           src={menu.imagePath}
           alt={menu.imagePath}
           style={{ width: "100%", height: "auto" }}
+          fill={false}
         />
         <p>Price: {menu.price}</p>
       </Modal.Body>

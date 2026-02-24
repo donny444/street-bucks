@@ -30,8 +30,12 @@ export default function MenusByCategory({
       }
 
       const responseBody = fetchedMenus?.data;
-      if (responseBody?.menus) {
-        setMenus(responseBody.menus);
+      if (responseBody?.error) {
+        setMessage(responseBody.error);
+      }
+      if (responseBody?.message && responseBody?.menus) {
+        setMessage(responseBody.message);
+        setMenus(responseBody?.menus);
       }
     };
     loadMenus();
@@ -71,7 +75,7 @@ function MenuCard({ menu }: { menu: Menu }): React.JSX.Element {
       <Card className="h-100">
         <Card.Img
           variant="top"
-          src={menu.imagePath}
+          src={`${process.env.NEXT_PUBLIC_SERVER_URL}${menu.imagePath}`}
           alt={menu.name}
           style={{ height: "200px", objectFit: "cover" }}
         />

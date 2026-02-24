@@ -53,7 +53,7 @@ function CartSummary({ cart }: CartSummaryProps): React.JSX.Element {
         <p className="h3">{`Total: ${total}`}</p>
       </Row>
       <Row>
-        <Button variant="success" className="w-25">
+        <Button variant="success" className="w-25" onClick={undefined}>
           Confirm Order
         </Button>
       </Row>

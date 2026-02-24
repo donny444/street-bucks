@@ -11,11 +11,13 @@ export enum MenuCategory {
 }
 
 export interface MenuResponse {
-  message: string;
-  menus: Menu[];
+  message?: string;
+  menus?: Menu[];
+  error?: string;
 }
 
 export interface SpecificMenuResponse {
-  message: string;
-  menu: Menu;
+  message?: string;
+  menu?: Menu;
+  error?: string;
 }

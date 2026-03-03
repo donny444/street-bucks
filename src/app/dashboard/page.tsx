@@ -59,21 +59,26 @@ export default function InsightsPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const branchId = localStorage.getItem("branchId");
-    if (!branchId) {
+    const branchToken = localStorage.getItem("branch-token");
+    if (!branchToken) {
       router.push("/branches");
     }
   }, [router]);
 
   return (
-    <Container className="bg-light p-3 gap-2">
-      <Row className="d-flex justify-content-between align-items-center">
-        <Col>
+    <Container className="bg-light p-3 h-100 d-flex flex-column" fluid>
+      <Row className="flex-grow-1 h-50 mb-3">
+        <Col md={6} className="h-100">
           <TopMenusChart />
         </Col>
+        <Col md={6} className="h-100">
+          <Container className="bg-white h-100 rounded-3 p-3">
+            {/* Blank container for now */}
+          </Container>
+        </Col>
       </Row>
-      <Row className="d-flex justify-content-between align-items-center">
-        <Col>
+      <Row className="flex-grow-1 h-50">
+        <Col className="h-100">
           <SalesByPeriodChart />
         </Col>
       </Row>
@@ -83,11 +88,17 @@ export default function InsightsPage() {
 
 function TopMenusChart() {
   return (
-    <Container className="bg-white p-3 rounded-3 mb-4">
-      <PieChartSales
-        pieChartData={pieChartData}
-        pieChartOptions={pieChartOptions}
-      />
+    <Container className="bg-white h-100 rounded-3 p-3 d-flex align-items-center justify-content-center">
+      <div style={{ height: "100%", width: "100%", position: "relative" }}>
+        <PieChartSales
+          pieChartData={pieChartData}
+          pieChartOptions={{
+            ...pieChartOptions,
+            maintainAspectRatio: false,
+            responsive: true,
+          }}
+        />
+      </div>
     </Container>
   );
 }
@@ -100,6 +111,7 @@ function PieChartSales({ pieChartData, pieChartOptions }: PieChartSalesProps) {
   const [chartOptions, setChartOptions] = useState(pieChartOptions);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchSalesData = async () => {
@@ -107,8 +119,17 @@ function PieChartSales({ pieChartData, pieChartOptions }: PieChartSalesProps) {
         setLoading(true);
 
         const insightResponse: AxiosResponse = await axios.get(
-          `http://localhost:8085/insights/top-menus`
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/insights/top-menus`,
+          {
+            headers: {
+              "branch-token": localStorage.getItem("branch-token"),
+            },
+          }
         );
+        if (insightResponse?.status === 401) {
+          localStorage.removeItem("branch-token");
+          router.push("/branches");
+        }
         if (insightResponse.status !== 200) {
           setError("Unable to fetch sales data");
           throw new Error("Unable to fetch sales data");
@@ -156,9 +177,9 @@ function SalesByPeriodChart() {
   const [period, setPeriod] = useState<PeriodEnum>(PeriodEnum.WEEKLY);
 
   return (
-    <Container className="bg-white p-3 rounded-3 mb-4">
-      <Container
-        className="btn-group mb-3"
+    <Container className="bg-white h-100 rounded-3 p-3 d-flex flex-column">
+      <div
+        className="btn-group mb-3 align-self-start"
         role="group"
         aria-label="Time period"
       >
@@ -182,21 +203,27 @@ function SalesByPeriodChart() {
         >
           {PeriodEnum.ANNUAL}
         </Button>
-      </Container>
-      {period === PeriodEnum.WEEKLY || period === PeriodEnum.MONTHLY ? (
-        <LineChartSales
-          lineChartData={lineChartData}
-          lineChartOptions={lineChartOptions}
-          period={period}
-        />
-      ) : (
-        <></>
-      )}
-      {period === PeriodEnum.ANNUAL ? (
-        <BarChartSales barChartData={barChartData} />
-      ) : (
-        <></>
-      )}
+      </div>
+      <div className="flex-grow-1" style={{ position: "relative" }}>
+        {period === PeriodEnum.WEEKLY || period === PeriodEnum.MONTHLY ? (
+          <LineChartSales
+            lineChartData={lineChartData}
+            lineChartOptions={{
+               ...lineChartOptions,
+               maintainAspectRatio: false,
+               responsive: true
+           }}
+            period={period}
+          />
+        ) : (
+          <></>
+        )}
+        {period === PeriodEnum.ANNUAL ? (
+          <BarChartSales barChartData={barChartData} />
+        ) : (
+          <></>
+        )}
+      </div>
     </Container>
   );
 }
@@ -215,6 +242,7 @@ function LineChartSales({
   const [chartOptions, setChartOptions] = useState(lineChartOptions);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchSalesData = async () => {
@@ -225,17 +253,25 @@ function LineChartSales({
         let chartTitle: string = "";
         switch (period) {
           case PeriodEnum.WEEKLY:
-            url = `http://localhost:8085/insights/sales-in-week`;
+            url = `${process.env.NEXT_PUBLIC_SERVER_URL}/insights/sales-in-week`;
             chartTitle = "Sales in This Week";
             break;
           case PeriodEnum.MONTHLY:
-            url = `http://localhost:8085/insights/sales-in-month`;
+            url = `${process.env.NEXT_PUBLIC_SERVER_URL}/insights/sales-in-month`;
             chartTitle = "Sales in This Month";
             break;
           default:
             break;
         }
-        const insightResponse: AxiosResponse = await axios.get(url);
+        const insightResponse: AxiosResponse = await axios.get(url, {
+          headers: {
+            "branch-token": localStorage.getItem("branch-token"),
+          },
+        });
+        if (insightResponse?.status === 401) {
+          localStorage.removeItem("branch-token");
+          router.push("/branches");
+        }
         if (insightResponse.status !== 200) {
           setError("Unable to fetch sales data");
           throw new Error("Unable to fetch sales data");
@@ -311,6 +347,7 @@ function BarChartSales({ barChartData }: BarChartSalesProps) {
   const [chartData, setChartData] = useState(barChartData);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchSalesData = async () => {
@@ -318,8 +355,17 @@ function BarChartSales({ barChartData }: BarChartSalesProps) {
         setLoading(true);
 
         const insightResponse: AxiosResponse = await axios.get(
-          `http://localhost:8085/insights/sales-in-year`
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/insights/sales-in-year`,
+          {
+            headers: {
+              "branch-token": localStorage.getItem("branch-token"),
+            },
+          }
         );
+        if (insightResponse?.status === 401) {
+          localStorage.removeItem("branch-token");
+          router.push("/branches");
+        }
         if (insightResponse.status !== 200) {
           setError("Unable to fetch sales data");
           throw new Error("Unable to fetch sales data");
@@ -328,28 +374,22 @@ function BarChartSales({ barChartData }: BarChartSalesProps) {
         const responseBody: ResponseForBarChart = insightResponse.data;
         const { message, insight } = responseBody;
 
-        const updatedDatasets: ChartDataset<
-          "bar",
-          (number | [number, number] | null)[]
-        >[] = chartData.datasets.map((dataset: ChartDataset<"bar">) => {
-          const matchedInsightEntry = insight.find(
-            (entry: CategoricalSales) =>
-              entry.label === dataset.label?.toLowerCase()
-          );
-          if (matchedInsightEntry) {
-            return {
-              ...dataset,
-              data: matchedInsightEntry.data,
-            } as ChartDataset<"bar", (number | [number, number] | null)[]>;
-          }
-          return dataset as ChartDataset<
-            "bar",
-            (number | [number, number] | null)[]
-          >;
+        // Since datasets are modified inside the map, we need to be careful with typing
+        const updatedDatasets = chartData.datasets.map((dataset) => {
+             const matchedInsightEntry = insight.find(
+                (entry: CategoricalSales) =>
+                  entry.label === dataset.label?.toLowerCase()
+              );
+
+              if (matchedInsightEntry) {
+                 return { ...dataset, data: matchedInsightEntry.data };
+              }
+              return dataset;
         });
+
         setChartData({
           ...chartData,
-          datasets: updatedDatasets,
+          datasets: updatedDatasets as any, // Type assertion to avoid complexity with chart.js union types
         });
 
         console.log(`Fetched annual sales data: `, message);
@@ -362,7 +402,7 @@ function BarChartSales({ barChartData }: BarChartSalesProps) {
     };
 
     fetchSalesData();
-  }, [barChartData]);
+  }, [barChartData]); // Depend on barChartData, usually static from props
 
   return (
     <>
@@ -371,7 +411,7 @@ function BarChartSales({ barChartData }: BarChartSalesProps) {
       ) : error ? (
         <p className="h3">{error}</p>
       ) : (
-        <Bar data={chartData} options={barChartOptions} />
+        <Bar data={chartData} options={{...barChartOptions, maintainAspectRatio: false, responsive: true}} />
       )}
     </>
   );

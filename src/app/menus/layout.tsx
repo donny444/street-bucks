@@ -2,11 +2,10 @@
 
 import React from "react";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Container, Tabs, Tab, Stack } from "react-bootstrap";
-
+import { Container, Nav, Stack } from "react-bootstrap";
 import { MenuCategory } from "./menu_types";
 
 export default function MenuLayout({
@@ -15,19 +14,66 @@ export default function MenuLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const currentCategory = pathname.split("/").pop(); // Simple extraction for now
+
+  const categories = [MenuCategory.HOT, MenuCategory.ICED, MenuCategory.BAKERY];
 
   return (
-    <Stack>
-      <Tabs
-        transition={false}
-        onSelect={(t) => router.push(`/menus/${t}`)}
-        className="mb-3"
-        justify
+    <Stack gap={3}>
+      <Nav
+        fill
+        variant="pills"
+        className="justify-content-center border-0 mb-3"
+        activeKey={currentCategory}
       >
-        <Tab eventKey={MenuCategory.HOT} title={MenuCategory.HOT} />
-        <Tab eventKey={MenuCategory.ICED} title={MenuCategory.ICED} />
-        <Tab eventKey={MenuCategory.BAKERY} title={MenuCategory.BAKERY} />
-      </Tabs>
+        {categories.map((cat) => (
+          <Nav.Item key={cat} className="flex-grow-1">
+            <Nav.Link
+              eventKey={cat}
+              onClick={() => router.push(`/menus/${cat}`)}
+              className="text-black border-0 px-4 py-3 rounded-0 fw-medium h-100"
+              style={{
+                backgroundColor:
+                  currentCategory === cat ? "#ADEBB3" : "#E0EDBB",
+                transition: "background-color 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                if (currentCategory !== cat)
+                  e.currentTarget.style.backgroundColor = "#ADEBB3";
+              }}
+              onMouseLeave={(e) => {
+                if (currentCategory !== cat)
+                  e.currentTarget.style.backgroundColor = "#E0EDBB";
+              }}
+            >
+              {cat.charAt(0).toUpperCase() + cat.slice(1)}
+            </Nav.Link>
+          </Nav.Item>
+        ))}
+        <Nav.Item className="flex-grow-1">
+          <Nav.Link
+            eventKey="cart"
+            onClick={() => router.push("/orders/cart")} // assuming cart route exists or handled appropriately
+            className="text-black border-0 px-4 py-3 rounded-0 fw-medium h-100"
+            style={{
+              backgroundColor:
+                currentCategory === "cart" ? "#ADEBB3" : "#E0EDBB",
+              transition: "background-color 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              if (currentCategory !== "cart")
+                e.currentTarget.style.backgroundColor = "#ADEBB3";
+            }}
+            onMouseLeave={(e) => {
+              if (currentCategory !== "cart")
+                e.currentTarget.style.backgroundColor = "#E0EDBB";
+            }}
+          >
+            Cart
+          </Nav.Link>
+        </Nav.Item>
+      </Nav>
       <Container>{children}</Container>
     </Stack>
   );

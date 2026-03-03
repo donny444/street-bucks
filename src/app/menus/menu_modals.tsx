@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import Image from "next/image";
 
-import { include } from "./cart_slice";
+import { include } from "../orders/cart_slice";
 import { useDispatch } from "react-redux";
 
 import { Menu } from "./menu_types";
@@ -32,9 +32,10 @@ export function MenuModal({
       </Modal.Header>
       <Modal.Body>
         <Image
-          src={menu.imagePath}
+          src={`${process.env.NEXT_PUBLIC_SERVER_URL}/${menu.imagePath}`}
           alt={menu.imagePath}
-          style={{ width: "100%", height: "auto" }}
+          width={300}
+          height={300}
           fill={false}
         />
         <p>Price: {menu.price}</p>
@@ -56,7 +57,7 @@ export function MenuModal({
           </span>
           <Button
             variant="secondary"
-            onClick={() => setQuantity((prev) => prev + 1)}
+            onClick={() => setQuantity((prev) => Math.min(prev + 1, 10))}
           >
             +
           </Button>
@@ -72,6 +73,7 @@ export function MenuModal({
                 quantity: quantity,
               })
             );
+            onHide();
           }}
         >
           Add to Cart

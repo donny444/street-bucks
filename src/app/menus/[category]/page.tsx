@@ -77,7 +77,8 @@ function MenuCard({ menu }: { menu: Menu }): React.JSX.Element {
           variant="top"
           src={`${process.env.NEXT_PUBLIC_SERVER_URL}${menu.imagePath}`}
           alt={menu.name}
-          style={{ height: "200px", objectFit: "cover" }}
+          width={200}
+          height={200}
         />
         <Card.Body className="d-flex flex-column">
           <Card.Title>{menu.name}</Card.Title>

@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import Image from "next/image";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -9,6 +11,7 @@ import {
   edit,
   increment,
   decrement,
+  hydrate,
   CartState,
 } from "../cart_slice";
 import { RootState } from "@/app/contexts/store";
@@ -16,19 +19,26 @@ import { RootState } from "@/app/contexts/store";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Stack, Row, Col, Table, Button } from "react-bootstrap";
 
-import { Menu } from "../menu_types";
+import { Menu } from "../../menus/menu_types";
 
 export default function CartPage(): React.JSX.Element {
   const cart: CartState = useSelector((state: RootState) => state.cart);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(hydrate());
+  });
 
   return (
     <Container className="bg-light p-3">
-      <Col xs={12} md={9} lg={8} className="mx-auto">
-        <CartTable cart={cart} />
-      </Col>
-      <Col xs={12} md={3} lg={4} className="mx-auto mt-4">
-        <CartSummary cart={cart} />
-      </Col>
+      <Row>
+        <Col xs={12} md={9} className="mx-0">
+          <CartTable cart={cart} />
+        </Col>
+        <Col xs={12} md={3} className="mx-0">
+          <CartSummary cart={cart} />
+        </Col>
+      </Row>
     </Container>
   );
 }
@@ -53,8 +63,8 @@ function CartSummary({ cart }: CartSummaryProps): React.JSX.Element {
         <p className="h3">{`Total: ${total}`}</p>
       </Row>
       <Row>
-        <Button variant="success" className="w-25" onClick={undefined}>
-          Confirm Order
+        <Button variant="primary" className="w-100" onClick={undefined}>
+          Place Order
         </Button>
       </Row>
     </Container>
@@ -80,14 +90,22 @@ function CartTable({ cart }: CartTableProps): React.JSX.Element {
           </tr>
         </thead>
         <tbody>
-          {Object.entries(cart).map(([name, itemDetail], index) => (
-            <CartEntry
-              key={name}
-              name={name}
-              itemDetail={itemDetail}
-              index={index}
-            />
-          ))}
+          {Object.keys(cart).length === 0 ? (
+            <tr>
+              <td colSpan={6} className="text-center">
+                There&apos;s no item in cart yet.
+              </td>
+            </tr>
+          ) : (
+            Object.entries(cart).map(([name, itemDetail], index) => (
+              <CartEntry
+                key={name}
+                name={name}
+                itemDetail={itemDetail}
+                index={index}
+              />
+            ))
+          )}
         </tbody>
       </Table>
     </Stack>
@@ -110,13 +128,18 @@ function CartEntry({
     <tr key={name}>
       <td>{index + 1}</td>
       <td>
-        <Image src={itemDetail.imagePath} alt={name} width={50} height={50} />
+        <Image
+          src={`${process.env.NEXT_PUBLIC_SERVER_URL}/${itemDetail.imagePath}`}
+          alt={itemDetail.imagePath}
+          width={50}
+          height={50}
+        />
       </td>
       <td>{name}</td>
       <td>{itemDetail.subtotal}</td>
       <td>
         <div className="d-flex align-items-center">
-          <Button variant="secondary" onClick={() => dispatch(decrement(name))}>
+          <Button variant="danger" onClick={() => dispatch(decrement(name))}>
             -
           </Button>
           <span className="mx-3">
@@ -134,9 +157,8 @@ function CartEntry({
                 )
               }
             />
-            {itemDetail.quantity}
           </span>
-          <Button variant="secondary" onClick={() => dispatch(increment(name))}>
+          <Button variant="success" onClick={() => dispatch(increment(name))}>
             +
           </Button>
         </div>

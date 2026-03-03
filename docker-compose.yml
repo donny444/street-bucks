@@ -2,8 +2,10 @@ services:
 
   database:
     image: postgres:17-alpine
+    env_file:
+      - server/.env
     environment:
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     container_name: database-container
     ports:
       - "5432:5432"
@@ -20,11 +22,31 @@ services:
       context: ./server
       dockerfile: Dockerfile
     container_name: server-container
+    env_file:
+      - server/.env
+    environment:
+      DATABASE_URL: ${DOCKER_DATABASE_URL}
+      PORT: ${PORT}
+      BRANCH_JWT_SECRET: ${BRANCH_JWT_SECRET}
     ports:
       - "8085:8085"
     depends_on:
       database:
         condition: service_healthy
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: client-container
+    env_file:
+      - .env
+    environment:
+      NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_DOCKER_SERVER_URL}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
 
 volumes:
   postgres-volume:

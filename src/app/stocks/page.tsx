@@ -1,16 +1,28 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FetchStocks } from "./stock_fetches";
-import { Stock } from "./stock_types";
+
+import { useRouter } from "next/navigation";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Row, Col, Card, Button, Modal } from "react-bootstrap";
+
+import { FetchStocks } from "./stock_fetches";
+import { Stock } from "./stock_types";
 
 export default function BranchStocks(): React.JSX.Element {
   const [message, setMessage] = useState<string>("");
   const [stocks, setStocks] = useState<Stock[]>([]);
   const [modal, setModal] = useState<boolean>(false);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const branchToken = localStorage.getItem("branch-token");
+    if (!branchToken) {
+      router.push("/branches");
+    }
+  }, [router]);
 
   useEffect(() => {
     const loadStocks = async () => {
@@ -19,10 +31,14 @@ export default function BranchStocks(): React.JSX.Element {
         setMessage("Failed to load stocks.");
         setModal(true);
       }
+      if (fetchedStocks?.status === 401) {
+        localStorage.removeItem("branch-token");
+        router.push("/branches");
+      }
 
       const responseBody = fetchedStocks?.data;
-      if (responseBody?.stocks) {
-        setStocks(responseBody.stocks);
+      if (responseBody?.branch_stocks) {
+        setStocks(responseBody.branch_stocks);
       }
     };
     loadStocks();
@@ -44,9 +60,9 @@ export default function BranchStocks(): React.JSX.Element {
         </Modal>
       ) : (
         <Row>
-          {stocks.map((stock) => (
-            <Col key={stock.name} xs={12} sm={6} md={4} lg={3} className="mb-4">
-              <StockCard stock={stock} />
+          {stocks.map((s) => (
+            <Col key={s.name} xs={12} sm={6} md={4} lg={3} className="mb-4">
+              <StockCard stock={s} />
             </Col>
           ))}
         </Row>
@@ -60,9 +76,11 @@ function StockCard({ stock }: { stock: Stock }): React.JSX.Element {
     <Card className="h-100">
       <Card.Img
         variant="top"
-        src={stock.imagePath}
+        src={`${process.env.NEXT_PUBLIC_SERVER_URL}${stock.imagePath}`}
         alt={stock.name}
-        style={{ height: "200px", objectFit: "cover" }}
+        width={200}
+        height={200}
+        style={{ objectFit: "cover" }}
       />
       <Card.Body className="d-flex flex-column">
         <Card.Title>{stock.name}</Card.Title>

@@ -6,5 +6,5 @@ export interface Stock {
 
 export interface StockResponse {
   message: string;
-  stocks: Stock[];
+  branch_stocks: Stock[];
 }

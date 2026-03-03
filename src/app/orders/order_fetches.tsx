@@ -1,17 +1,17 @@
 import axios from "axios";
 import { AxiosResponse } from "axios";
 
-import { TodayOrdersResponse } from "./order_types";
+import { TodayOrdersResponse, SpecificOrderResponse } from "./order_types";
 
 export async function FetchTodayOrders(): Promise<
   AxiosResponse<TodayOrdersResponse> | undefined
 > {
   try {
     const response = await axios.get<TodayOrdersResponse>(
-      `${process.env.NEXT_SERVER_BASE_URL}/orders`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/orders`,
       {
         headers: {
-          "Branch-Payload": localStorage.getItem("branchId"),
+          "branch-token": localStorage.getItem("branch-token"),
         },
       }
     );
@@ -19,6 +19,26 @@ export async function FetchTodayOrders(): Promise<
     return response;
   } catch (err) {
     console.error("Failed to fetch today orders:", err);
+    return undefined;
+  }
+}
+
+export async function FetchSpecificOrder(
+  uuid: string
+): Promise<AxiosResponse<SpecificOrderResponse> | undefined> {
+  try {
+    const response = await axios.get<SpecificOrderResponse>(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/orders/${uuid}`,
+      {
+        headers: {
+          "branch-token": localStorage.getItem("branch-token"),
+        },
+      }
+    );
+
+    return response;
+  } catch (err) {
+    console.error("Failed to fetch specific order:", err);
     return undefined;
   }
 }

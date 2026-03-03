@@ -1,17 +1,21 @@
 import axios from "axios";
 import { AxiosResponse } from "axios";
 
-import { BranchUsersResponse, SpecificUserResponse } from "./user_types";
+import {
+  BranchUsersResponse,
+  SpecificUserResponse,
+  AttendUserResponse,
+} from "./user_types";
 
 export async function FetchBranchUsers(): Promise<
   AxiosResponse<BranchUsersResponse> | undefined
 > {
   try {
     const response = await axios.get<BranchUsersResponse>(
-      `${process.env.NEXT_SERVER_BASE_URL}/users`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/users`,
       {
         headers: {
-          "Branch-Payload": localStorage.getItem("branchId"),
+          "branch-token": localStorage.getItem("branch-token"),
         },
       }
     );
@@ -28,10 +32,10 @@ export async function FetchSpecificUser(
 ): Promise<AxiosResponse<SpecificUserResponse> | undefined> {
   try {
     const response = await axios.get<SpecificUserResponse>(
-      `${process.env.NEXT_SERVER_BASE_URL}/users/${email}`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/users/${email}`,
       {
         headers: {
-          "Branch-Payload": localStorage.getItem("branchId"),
+          "branch-token": localStorage.getItem("branch-token"),
         },
       }
     );
@@ -43,15 +47,37 @@ export async function FetchSpecificUser(
   }
 }
 
+export async function AttendUser(
+  email: string,
+  password: string
+): Promise<AxiosResponse<AttendUserResponse> | undefined> {
+  try {
+    const response = await axios.post<AttendUserResponse>(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/users/${email}`,
+      { password },
+      {
+        headers: {
+          "branch-token": localStorage.getItem("branch-token"),
+        },
+      }
+    );
+
+    return response;
+  } catch (err) {
+    console.error(`Failed to attend user with email '${email}':`, err);
+    return undefined;
+  }
+}
+
 export async function DeleteUser(
   email: string
 ): Promise<AxiosResponse<SpecificUserResponse> | undefined> {
   try {
     const response = await axios.delete<SpecificUserResponse>(
-      `${process.env.NEXT_SERVER_BASE_URL}/users/${email}`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/users/${email}`,
       {
         headers: {
-          "Branch-Payload": localStorage.getItem("branchId"),
+          "branch-token": localStorage.getItem("branch-token"),
         },
       }
     );

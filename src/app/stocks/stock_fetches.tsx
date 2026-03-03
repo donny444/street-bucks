@@ -7,10 +7,10 @@ export async function FetchStocks(): Promise<
 > {
   try {
     const response = await axios.get<StockResponse>(
-      `${process.env.NEXT_SERVER_BASE_URL}/stocks`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/stocks`,
       {
         headers: {
-          "Branch-Payload": localStorage.getItem("branchId"),
+          "branch-token": localStorage.getItem("branch-token"),
         },
       }
     );

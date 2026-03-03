@@ -13,7 +13,7 @@ export async function FetchBranchIds(): Promise<
 > {
   try {
     const response = await axios.get<BranchIdsResponse>(
-      "${process.env.PUBLIC_SERVER_URL}/branches"
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/branches`
     );
     return response;
   } catch (err) {
@@ -30,7 +30,7 @@ export async function BranchSignin({
 > {
   try {
     const response = await axios.post(
-      "${process.env.PUBLIC_SERVER_URL}/branches/signin",
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/branches/sign-in`,
       {
         branchId,
         password,

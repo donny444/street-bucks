@@ -7,7 +7,12 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    router.push("/menus/hot");
+    const branchToken = localStorage.getItem("branch-token");
+    if (!branchToken) {
+      router.push("/branches");
+    } else {
+      router.push("/menus/hot");
+    }
   }, [router]);
 
   return <></>;

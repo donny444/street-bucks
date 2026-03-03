@@ -7,13 +7,16 @@ import { User, UserRole } from "../user_types";
 import { useRouter } from "next/navigation";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Container, Row, Card, Button, Modal, Form } from "react-bootstrap";
+import { Container, Row, Button, Modal, Form } from "react-bootstrap";
 
+interface UserDetailProps {
+  params: {
+    email: string;
+  };
+}
 export default function UserDetail({
   params,
-}: {
-  params: { email: string };
-}): React.JSX.Element {
+}: UserDetailProps): React.JSX.Element {
   const [message, setMessage] = useState<string>("");
   const [user, setUser] = useState<User | null>(null);
   const [errorModal, setErrorModal] = useState<boolean>(false);
@@ -22,26 +25,30 @@ export default function UserDetail({
   const router = useRouter();
 
   useEffect(() => {
-    const branchId = localStorage.getItem("branchId");
-    if (!branchId) {
+    const branchToken = localStorage.getItem("branch-token");
+    if (!branchToken) {
       router.push("/branches");
     }
   }, [router]);
 
   useEffect(() => {
-    const loadOrders = async () => {
-      const fetchedUsers = await FetchSpecificUser(userEmail);
-      if (!fetchedUsers) {
-        setMessage("Failed to load branch's users.");
+    const loadUser = async () => {
+      const fetchedUser = await FetchSpecificUser(userEmail);
+      if (!fetchedUser) {
+        setMessage("Failed to load user detail.");
         setErrorModal(true);
       }
+      if (fetchedUser?.status === 401) {
+        localStorage.removeItem("branch-token");
+        router.push("/branches");
+      }
 
-      const responseBody = fetchedUsers?.data;
+      const responseBody = fetchedUser?.data;
       if (responseBody?.user) {
         setUser(responseBody.user);
       }
     };
-    loadOrders();
+    loadUser();
   }, []);
 
   return (

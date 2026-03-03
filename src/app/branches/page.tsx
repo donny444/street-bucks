@@ -14,11 +14,18 @@ import { NotifyModal } from "@/app/components/modals";
 export default function BranchSignIn() {
   const [message, setMessage] = useState<string>("");
   const [branchIds, setBranchIds] = useState<number[]>([]);
-  const [branchId, setBranchId] = useState<number>(0);
+  const [branchId, setBranchId] = useState<number>(1);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [notifyModal, setNotifyModal] = useState<boolean>(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const branchToken = localStorage.getItem("branch-token");
+    if (branchToken) {
+      router.push("/menus/hot");
+    }
+  }, [router]);
 
   useEffect(() => {
     const loadBranchIds = async () => {
@@ -62,7 +69,7 @@ export default function BranchSignIn() {
 
     if (responseBody?.message && responseBody?.token) {
       setMessage(responseBody.message);
-      localStorage.setItem("Branch-Token", responseBody.token);
+      localStorage.setItem("branch-token", responseBody.token);
       router.push("/orders");
     }
   };
@@ -84,11 +91,7 @@ export default function BranchSignIn() {
             <Card className="shadow-sm">
               <Card.Body>
                 <p className="h2 text-center mb-4">Branch Sign-In</p>
-                <Form
-                  onSubmit={(e) => {
-                    handleSignIn(e);
-                  }}
-                >
+                <Form onSubmit={handleSignIn}>
                   <Form.Group className="mb-3" controlId="formBranchId">
                     <Form.Label>Branch ID</Form.Label>
                     <Form.Select
@@ -115,15 +118,7 @@ export default function BranchSignIn() {
                   </Form.Group>
 
                   <div className="d-grid gap-2">
-                    <Button
-                      variant="primary"
-                      type="submit"
-                      disabled={loading}
-                      style={{
-                        backgroundColor: "var(--sb-primary)",
-                        borderColor: "var(--sb-primary)",
-                      }}
-                    >
+                    <Button variant="primary" type="submit" disabled={loading}>
                       {loading ? "Signing in..." : "Sign In"}
                     </Button>
                   </div>

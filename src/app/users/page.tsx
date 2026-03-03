@@ -10,7 +10,9 @@ import { Container, Button, Table, Badge } from "react-bootstrap";
 
 import { FetchBranchUsers, DeleteUser } from "./user_fetches";
 import { User, UserRole } from "./user_types";
-import { ConfirmModal, NotifyModal } from "../components/modals";
+import { AttendModal } from "./user_modals";
+
+import { ConfirmModal, NotifyModal } from "@/app/components/modals";
 
 export default function BranchUsers(): React.JSX.Element {
   const [message, setMessage] = useState<string>("");
@@ -20,26 +22,34 @@ export default function BranchUsers(): React.JSX.Element {
   const router = useRouter();
 
   useEffect(() => {
-    const branchId = localStorage.getItem("branchId");
-    if (!branchId) {
+    const branchToken = localStorage.getItem("branch-token");
+    if (!branchToken) {
       router.push("/branches");
     }
   }, [router]);
 
   useEffect(() => {
-    const loadOrders = async () => {
+    const loadUsers = async () => {
       const fetchedUsers = await FetchBranchUsers();
       if (!fetchedUsers) {
         setMessage("Failed to load branch's users.");
         setNotifyModal(true);
       }
+      if (fetchedUsers?.status === 401) {
+        localStorage.removeItem("branch-token");
+        router.push("/branches");
+      }
 
       const responseBody = fetchedUsers?.data;
-      if (responseBody?.branch_users) {
-        setUsers(responseBody.branch_users);
+      if (responseBody?.error) {
+        setMessage(responseBody.error);
+      }
+      if (responseBody?.message && responseBody?.branch_users) {
+        setMessage(responseBody.message);
+        setUsers(responseBody?.branch_users);
       }
     };
-    loadOrders();
+    loadUsers();
   }, []);
 
   return (
@@ -63,9 +73,15 @@ export default function BranchUsers(): React.JSX.Element {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
-              <BranchUser key={user.email} user={user} />
-            ))}
+            {users.length < 1 ? (
+              <tr>
+                <td colSpan={5} className="text-center">
+                  No users exist in this branch.
+                </td>
+              </tr>
+            ) : (
+              users.map((user) => <BranchUser key={user.email} user={user} />)
+            )}
           </tbody>
         </Table>
       </>
@@ -74,26 +90,28 @@ export default function BranchUsers(): React.JSX.Element {
 }
 
 function BranchUser({ user }: { user: User }): React.JSX.Element {
-  const [removeModal, setRemoveModal] = useState<boolean>(false);
+  const [message, setMessage] = useState("");
   const [confirmModal, setConfirmModal] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>("");
-  const roleBadge = (role: UserRole): React.JSX.Element => {
-    let roleText = "UNKNOWN";
-    let badgeColor = "secondary";
+  const [attendModal, setAttendModal] = useState<boolean>(false);
+  const [removeModal, setRemoveModal] = useState<boolean>(false);
 
-    switch (role) {
-      case UserRole.ADMINISTRATOR:
-        roleText = UserRole.ADMINISTRATOR.toUpperCase();
-        badgeColor = "danger";
-      case UserRole.MANAGER:
-        roleText = UserRole.MANAGER.toUpperCase();
-        badgeColor = "warning";
-      case UserRole.STAFF:
-        roleText = UserRole.STAFF.toUpperCase();
-        badgeColor = "primary";
-      default:
-        return <Badge bg={badgeColor}>{roleText}</Badge>;
-    }
+  const roleBadge = (role: UserRole): React.JSX.Element => {
+    const roleMap: Record<UserRole, { text: string; color: string }> = {
+      [UserRole.ADMINISTRATOR]: { text: "ADMINISTRATOR", color: "danger" },
+      [UserRole.MANAGER]: { text: "MANAGER", color: "warning" },
+      [UserRole.STAFF]: { text: "STAFF", color: "primary" },
+    };
+
+    const { text: roleText, color: badgeColor } = roleMap[role] || {
+      text: "UNKNOWN",
+      color: "secondary",
+    };
+
+    return (
+      <Badge bg={badgeColor} className="p-2">
+        {roleText}
+      </Badge>
+    );
   };
 
   const RemoveUser = async (email: string) => {
@@ -101,18 +119,21 @@ function BranchUser({ user }: { user: User }): React.JSX.Element {
     if (!response) {
       setMessage("Failed to perform user removal.");
       setRemoveModal(true);
-      return;
     }
-    if (response.status !== 200) {
+    if (response?.status !== 200) {
       setMessage(response.data.message);
       setRemoveModal(true);
-      return;
+    }
+    const responseBody = response?.data;
+    if (responseBody?.error) {
+      setMessage(responseBody.error);
+    }
+    if (responseBody?.message) {
+      setMessage(responseBody?.message);
     }
 
-    setMessage(response.data.message);
     setRemoveModal(true);
 
-    // Reload the page to reflect the removed user
     window.location.reload();
   };
 
@@ -121,8 +142,8 @@ function BranchUser({ user }: { user: User }): React.JSX.Element {
       <ConfirmModal
         show={confirmModal}
         onHide={() => setConfirmModal(false)}
-        onClick={async () => {
-          await RemoveUser(user.email);
+        onClick={() => {
+          RemoveUser(user.email);
           setConfirmModal(false);
         }}
         title="Confirm User Removal"
@@ -135,6 +156,7 @@ function BranchUser({ user }: { user: User }): React.JSX.Element {
         title="User Removal"
         message={message}
       />
+      <AttendModal show={attendModal} onHide={() => setAttendModal(false)} />
       <tr>
         <td>
           {user.firstName} {user.lastName}
@@ -149,8 +171,16 @@ function BranchUser({ user }: { user: User }): React.JSX.Element {
           )}
         </td>
         <td>
-          <Button variant="warning">
-            <Link href={`orders/${user.email}`}>Edit</Link>
+          <Button onClick={() => setAttendModal(true)} variant="primary">
+            Attend
+          </Button>
+          <Button variant="warning" className="ms-2">
+            <Link
+              href={`users/${user.email}`}
+              className="text-white text-decoration-none"
+            >
+              Edit
+            </Link>
           </Button>
           <Button
             onClick={() => setConfirmModal(true)}

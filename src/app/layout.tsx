@@ -29,6 +29,7 @@ export const metadata = {
 };
 
 import Sidebar from "./components/sidebar";
+import Footer from "./components/footer";
 
 export default function RootLayout({
   children,
@@ -50,15 +51,14 @@ export default function RootLayout({
       <body>
         <ServiceWorkerProvider>
           <ReduxProvider>
-            <Row>
+            <div className="d-flex vh-100">
               <Sidebar />
-              <Col>
-                <Container>{children}</Container>
-              </Col>
-            </Row>
-            <Row>
-              <Container>© {new Date().getFullYear()} StreetBucks</Container>
-            </Row>
+              {/* distinct class for connection with sidebar state via CSS variables */}
+              <div className="flex-grow-1 main-content-wrapper">
+                <Container className="vh-100 p-0 m-0">{children}</Container>
+                <Footer />
+              </div>
+            </div>
           </ReduxProvider>
         </ServiceWorkerProvider>
       </body>

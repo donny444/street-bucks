@@ -72,9 +72,7 @@ export default function InsightsPage() {
           <TopMenusChart />
         </Col>
         <Col md={6} className="h-100">
-          <Container className="bg-white h-100 rounded-3 p-3">
-            {/* Blank container for now */}
-          </Container>
+          <SalesCountNumber />
         </Col>
       </Row>
       <Row className="flex-grow-1 h-50">
@@ -157,7 +155,7 @@ function PieChartSales({ pieChartData, pieChartOptions }: PieChartSalesProps) {
       }
     };
 
-    fetchSalesData();
+    void fetchSalesData();
   }, [pieChartData]);
 
   return (
@@ -170,6 +168,104 @@ function PieChartSales({ pieChartData, pieChartOptions }: PieChartSalesProps) {
         <Pie data={chartData} options={chartOptions} />
       )}
     </>
+  );
+}
+
+function SalesCountNumber() {
+  const [period, setPeriod] = useState<PeriodEnum>(PeriodEnum.DAILY);
+  const [routeParam, setRouteParam] = useState<string>("sales-today");
+  const [salesCount, setSalesCount] = useState<number>(0);
+  const [message, setMessage] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchSalesCount = async () => {
+      try {
+        setLoading(true);
+
+        const insightResponse: AxiosResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/insights/${routeParam}`,
+          {
+            headers: {
+              "branch-token": localStorage.getItem("branch-token"),
+            },
+          }
+        );
+        if (insightResponse?.status === 401) {
+          localStorage.removeItem("branch-token");
+          router.push("/branches");
+        }
+        if (insightResponse.status !== 200) {
+          setError("Unable to fetch sales count");
+          throw new Error("Unable to fetch sales count");
+        }
+
+        const responseBody = insightResponse.data;
+        const { message, insight } = responseBody;
+
+        setMessage(message);
+        setSalesCount(insight);
+      } catch (err) {
+        setError("Failed to fetch sales count.");
+        console.error("Error fetching sales count:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void fetchSalesCount();
+  }, [routeParam]);
+
+  return (
+    <Container className="bg-white h-100 rounded-3 p-3 d-flex align-items-center justify-content-center">
+      <div
+        className="btn-group mb-3 align-self-start"
+        role="group"
+        aria-label="Time period"
+      >
+        <Button
+          variant={period === PeriodEnum.DAILY ? "primary" : "outline-primary"}
+          onClick={() => {
+            setPeriod(PeriodEnum.DAILY);
+            setRouteParam("sales-today");
+          }}
+        >
+          {PeriodEnum.DAILY}
+        </Button>
+        <Button
+          variant={period === PeriodEnum.WEEKLY ? "primary" : "outline-primary"}
+          onClick={() => {
+            setPeriod(PeriodEnum.WEEKLY);
+            setRouteParam("sales-this-week");
+          }}
+        >
+          {PeriodEnum.WEEKLY}
+        </Button>
+        <Button
+          variant={
+            period === PeriodEnum.MONTHLY ? "primary" : "outline-primary"
+          }
+          onClick={() => {
+            setPeriod(PeriodEnum.MONTHLY);
+            setRouteParam("sales-this-month");
+          }}
+        >
+          {PeriodEnum.MONTHLY}
+        </Button>
+      </div>
+      <Container className="bg-danger text-white h-100 rounded-2 p-3 m-2 d-flex align-items-center justify-content-center">
+        <p className="h2">{`${period} sales count`}</p>
+        {loading ? (
+          <p className="h3">Loading...</p>
+        ) : error ? (
+          <p>{error}</p>
+        ) : (
+          <p className="fs-1 fw-bold">{salesCount}</p>
+        )}
+      </Container>
+    </Container>
   );
 }
 
@@ -209,10 +305,10 @@ function SalesByPeriodChart() {
           <LineChartSales
             lineChartData={lineChartData}
             lineChartOptions={{
-               ...lineChartOptions,
-               maintainAspectRatio: false,
-               responsive: true
-           }}
+              ...lineChartOptions,
+              maintainAspectRatio: false,
+              responsive: true,
+            }}
             period={period}
           />
         ) : (
@@ -324,7 +420,7 @@ function LineChartSales({
       }
     };
 
-    fetchSalesData();
+    void fetchSalesData();
   }, [period, lineChartData, lineChartOptions]);
 
   return (
@@ -376,15 +472,15 @@ function BarChartSales({ barChartData }: BarChartSalesProps) {
 
         // Since datasets are modified inside the map, we need to be careful with typing
         const updatedDatasets = chartData.datasets.map((dataset) => {
-             const matchedInsightEntry = insight.find(
-                (entry: CategoricalSales) =>
-                  entry.label === dataset.label?.toLowerCase()
-              );
+          const matchedInsightEntry = insight.find(
+            (entry: CategoricalSales) =>
+              entry.label === dataset.label?.toLowerCase()
+          );
 
-              if (matchedInsightEntry) {
-                 return { ...dataset, data: matchedInsightEntry.data };
-              }
-              return dataset;
+          if (matchedInsightEntry) {
+            return { ...dataset, data: matchedInsightEntry.data };
+          }
+          return dataset;
         });
 
         setChartData({
@@ -401,7 +497,7 @@ function BarChartSales({ barChartData }: BarChartSalesProps) {
       }
     };
 
-    fetchSalesData();
+    void fetchSalesData();
   }, [barChartData]); // Depend on barChartData, usually static from props
 
   return (
@@ -411,7 +507,14 @@ function BarChartSales({ barChartData }: BarChartSalesProps) {
       ) : error ? (
         <p className="h3">{error}</p>
       ) : (
-        <Bar data={chartData} options={{...barChartOptions, maintainAspectRatio: false, responsive: true}} />
+        <Bar
+          data={chartData}
+          options={{
+            ...barChartOptions,
+            maintainAspectRatio: false,
+            responsive: true,
+          }}
+        />
       )}
     </>
   );

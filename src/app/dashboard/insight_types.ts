@@ -22,6 +22,7 @@ export type CategoricalSales = {
 };
 
 export enum PeriodEnum {
+  DAILY = "daily",
   WEEKLY = "weekly",
   MONTHLY = "monthly",
   ANNUAL = "annual",

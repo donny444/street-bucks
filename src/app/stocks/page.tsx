@@ -76,7 +76,7 @@ function StockCard({ stock }: { stock: Stock }): React.JSX.Element {
     <Card className="h-100">
       <Card.Img
         variant="top"
-        src={`${process.env.NEXT_PUBLIC_SERVER_URL}${stock.imagePath}`}
+        src={`${process.env.NEXT_PUBLIC_SERVER_URL}/assets/recipes/${stock.imagePath}`}
         alt={stock.name}
         width={200}
         height={200}

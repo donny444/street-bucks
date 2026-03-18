@@ -75,7 +75,7 @@ function MenuCard({ menu }: { menu: Menu }): React.JSX.Element {
       <Card className="h-100">
         <Card.Img
           variant="top"
-          src={`${process.env.NEXT_PUBLIC_SERVER_URL}${menu.imagePath}`}
+          src={`${process.env.NEXT_PUBLIC_SERVER_URL}/assets/menus/${menu.imagePath}`}
           alt={menu.name}
           width={200}
           height={200}

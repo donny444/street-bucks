@@ -42,3 +42,24 @@ export async function FetchSpecificOrder(
     return undefined;
   }
 }
+
+export async function FetchReceipt(
+  uuid: string
+): Promise<AxiosResponse<Blob> | undefined> {
+  try {
+    const response = await axios.get<Blob>(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/orders/${uuid}/receipt`,
+      {
+        headers: {
+          "branch-token": localStorage.getItem("branch-token"),
+        },
+        responseType: "blob",
+      }
+    );
+
+    return response;
+  } catch (err) {
+    console.error("Failed to fetch receipt:", err);
+    return undefined;
+  }
+}

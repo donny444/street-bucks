@@ -16,7 +16,7 @@ import {
   Badge,
 } from "react-bootstrap";
 
-import { FetchSpecificOrder } from "../order_fetches";
+import { FetchSpecificOrder, FetchReceipt } from "../order_fetches";
 import { Entry, SpecificOrder } from "../order_types";
 import { NotifyModal } from "@/app/components/modals";
 
@@ -63,8 +63,8 @@ export default function OrderDetail({
         setOrderDetail(responseBody?.order);
       }
     };
-    loadOrder();
-  }, [orderUuid]);
+    void loadOrder();
+  }, [orderUuid, router]);
 
   const convertTimestamp = (timestamp: number): string => {
     const date = new Date(timestamp);
@@ -80,22 +80,28 @@ export default function OrderDetail({
           title="User Fetching Error"
           message={message}
         />
-        <Col className="justify-content-center">
-          <p className="h3">Order Detail</p>
-          {orderDetail ? (
-            <>
-              <OrderField label="UUID" value={orderDetail.uuid} />
-              <OrderField
-                label="Date-time"
-                value={convertTimestamp(orderDetail.timestamp)}
-              />
-              <OrderField label="Total price" value={orderDetail.totalPrice} />
-              <OrderField label="Entries" value={orderDetail.entries} />
-            </>
-          ) : (
-            <p>Order unavailable.</p>
-          )}
-        </Col>
+        <Container>
+          <Col className="justify-content-center">
+            <p className="h3">Order Detail</p>
+            {orderDetail ? (
+              <>
+                <OrderField label="UUID" value={orderDetail.uuid} />
+                <OrderField
+                  label="Date-time"
+                  value={convertTimestamp(orderDetail.timestamp)}
+                />
+                <OrderField
+                  label="Total price"
+                  value={orderDetail.totalPrice}
+                />
+                <OrderField label="Entries" value={orderDetail.entries} />
+              </>
+            ) : (
+              <p>Order unavailable.</p>
+            )}
+          </Col>
+        </Container>
+        <OrderReceipt uuid={orderUuid} />
       </>
     </Container>
   );
@@ -125,5 +131,74 @@ function OrderField({ label, value }: OrderFieldProps): React.JSX.Element {
         )}
       </Col>
     </Row>
+  );
+}
+
+interface OrderReceiptProps {
+  uuid: string;
+}
+function OrderReceipt({ uuid }: OrderReceiptProps): React.JSX.Element {
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadReceipt = async () => {
+      try {
+        setLoading(true);
+        const response = await FetchReceipt(uuid);
+
+        if (!response || !response.data) {
+          setError("Failed to load receipt.");
+          setLoading(false);
+          return;
+        }
+
+        const blob = new Blob([response.data], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        setPdfUrl(url);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error loading receipt:", err);
+        setError("An error occurred while loading the receipt.");
+        setLoading(false);
+      }
+    };
+
+    void loadReceipt();
+
+    return () => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    };
+  }, [uuid, pdfUrl]);
+
+  return (
+    <Container className="mt-4">
+      <p className="h4 mb-3">Receipt</p>
+      {loading && (
+        <div className="text-center p-4">
+          <Spinner animation="border" role="status">
+            <span className="visually-hidden">Loading receipt...</span>
+          </Spinner>
+        </div>
+      )}
+      {error && <Alert variant="danger">{error}</Alert>}
+      {pdfUrl && !loading && (
+        <div style={{ width: "100%", height: "800px" }}>
+          <iframe
+            src={pdfUrl}
+            style={{
+              width: "100%",
+              height: "100%",
+              border: "1px solid #ddd",
+              borderRadius: "4px",
+            }}
+            title="Order Receipt"
+          />
+        </div>
+      )}
+    </Container>
   );
 }

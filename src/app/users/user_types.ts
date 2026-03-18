@@ -6,6 +6,21 @@ export interface User {
   attended: boolean;
 }
 
+interface UserForm {
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+}
+
+export interface EditUser {
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  password: string;
+}
+
 export enum UserRole {
   STAFF = "STAFF",
   MANAGER = "MANAGER",
@@ -13,18 +28,28 @@ export enum UserRole {
 }
 
 export interface BranchUsersResponse {
-  message: string;
-  error: string;
-  branch_users: User[];
+  message?: string;
+  error?: string;
+  branch_users?: User[];
 }
 
-export interface SpecificUserResponse {
-  message: string;
-  error: string;
-  user: User;
+export interface UserFormResponse {
+  message?: string;
+  error?: string;
+  user?: UserForm;
 }
 
 export interface AttendUserResponse {
-  message: string;
-  error: string;
+  message?: string;
+  error?: string;
+}
+
+export interface EditUserResponse {
+  message?: string;
+  error?: string;
+}
+
+export interface DeleteUserResponse {
+  message?: string;
+  error?: string;
 }

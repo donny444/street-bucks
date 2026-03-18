@@ -74,3 +74,61 @@ export function AttendModal({ show, onHide }: AttendModalProps) {
     </Modal>
   );
 }
+
+interface EditModalProps {
+  show: boolean;
+  onHide: () => void;
+  title: string;
+  editorEmail: string;
+  setEditorEmail: (email: string) => void;
+  editorPassword: string;
+  setEditorPassword: (password: string) => void;
+  onSubmit: () => void;
+}
+export function EditModal({
+  show,
+  onHide,
+  title,
+  editorEmail,
+  setEditorEmail,
+  editorPassword,
+  setEditorPassword,
+  onSubmit,
+}: EditModalProps) {
+  return (
+    <Modal show={show} onHide={onHide} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>{title}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form onSubmit={onSubmit}>
+          <Form.Group className="mb-3" controlId="formBasicEmail">
+            <Form.Label>Email:</Form.Label>
+            <Form.Control
+              type="email"
+              value={editorEmail}
+              onChange={(e) => setEditorEmail(e.target.value)}
+              placeholder="Enter editor email"
+              required
+            />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="formBasicPassword">
+            <Form.Label>Password:</Form.Label>
+            <Form.Control
+              type="password"
+              value={editorPassword}
+              onChange={(e) => setEditorPassword(e.target.value)}
+              placeholder="Enter editor password"
+              required
+            />
+          </Form.Group>
+        </Form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="primary" onClick={onSubmit}>
+          Submit
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}

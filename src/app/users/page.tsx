@@ -49,8 +49,8 @@ export default function BranchUsers(): React.JSX.Element {
         setUsers(responseBody?.branch_users);
       }
     };
-    loadUsers();
-  }, []);
+    void loadUsers();
+  }, [router]);
 
   return (
     <Container>
@@ -143,7 +143,7 @@ function BranchUser({ user }: { user: User }): React.JSX.Element {
         show={confirmModal}
         onHide={() => setConfirmModal(false)}
         onClick={() => {
-          RemoveUser(user.email);
+          void RemoveUser(user.email);
           setConfirmModal(false);
         }}
         title="Confirm User Removal"

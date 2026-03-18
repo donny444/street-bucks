@@ -2,9 +2,12 @@ import axios from "axios";
 import { AxiosResponse } from "axios";
 
 import {
+  EditUser as EditUserType,
   BranchUsersResponse,
-  SpecificUserResponse,
+  UserFormResponse,
   AttendUserResponse,
+  EditUserResponse,
+  DeleteUserResponse,
 } from "./user_types";
 
 export async function FetchBranchUsers(): Promise<
@@ -27,17 +30,12 @@ export async function FetchBranchUsers(): Promise<
   }
 }
 
-export async function FetchSpecificUser(
+export async function FetchUserForm(
   email: string
-): Promise<AxiosResponse<SpecificUserResponse> | undefined> {
+): Promise<AxiosResponse<UserFormResponse> | undefined> {
   try {
-    const response = await axios.get<SpecificUserResponse>(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/users/${email}`,
-      {
-        headers: {
-          "branch-token": localStorage.getItem("branch-token"),
-        },
-      }
+    const response = await axios.get<UserFormResponse>(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/users/${email}`
     );
 
     return response;
@@ -69,11 +67,45 @@ export async function AttendUser(
   }
 }
 
+export async function EditUser(
+  email: string,
+  user: EditUserType,
+  editorEmail: string,
+  editorPassword: string
+): Promise<AxiosResponse<EditUserResponse> | undefined> {
+  try {
+    const response = await axios.put<EditUserResponse>(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/users/${email}`,
+      {
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        password: user.password,
+        editor: {
+          email: editorEmail,
+          password: editorPassword,
+        },
+      },
+      {
+        headers: {
+          "branch-token": localStorage.getItem("branch-token"),
+        },
+      }
+    );
+
+    return response;
+  } catch (err) {
+    console.error(`Failed to edit user with email '${email}':`, err);
+    return undefined;
+  }
+}
+
 export async function DeleteUser(
   email: string
-): Promise<AxiosResponse<SpecificUserResponse> | undefined> {
+): Promise<AxiosResponse<DeleteUserResponse> | undefined> {
   try {
-    const response = await axios.delete<SpecificUserResponse>(
+    const response = await axios.delete<DeleteUserResponse>(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/users/${email}`,
       {
         headers: {

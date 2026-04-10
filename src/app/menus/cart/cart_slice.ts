@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { Menu } from "../menus/menu_types";
+import { Menu } from "../menu_types";
 
 type CartItem = {
   name: Menu["name"];
@@ -117,6 +117,11 @@ const cartSlice = createSlice({
       state[name].quantity = Math.max(state[name].quantity - 1, 1);
       saveCartToStorage(state);
     },
+    // Action to clear entire cart after placing order
+    clear: (state) => {
+      Object.keys(state).forEach((key) => delete state[key]);
+      saveCartToStorage({});
+    },
     // Action to hydrate cart from sessionStorage on client side
     hydrate: (state) => {
       const stored = loadCartFromStorage();
@@ -125,6 +130,10 @@ const cartSlice = createSlice({
   },
 });
 
-export const { include, exclude, edit, increment, decrement, hydrate } =
+export const { include, exclude, edit, increment, decrement, clear, hydrate } =
   cartSlice.actions;
+
+export const selectCartEntryCount = (state: { cart: CartState }) =>
+  Object.keys(state.cart).length;
+
 export default cartSlice.reducer;

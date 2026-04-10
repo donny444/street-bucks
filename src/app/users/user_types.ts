@@ -6,19 +6,11 @@ export interface User {
   attended: boolean;
 }
 
-interface UserForm {
+export interface UserForm {
   email: string;
   firstName: string;
   lastName: string;
   role: UserRole;
-}
-
-export interface EditUser {
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: UserRole;
-  password: string;
 }
 
 export enum UserRole {
@@ -36,20 +28,5 @@ export interface BranchUsersResponse {
 export interface UserFormResponse {
   message?: string;
   error?: string;
-  user?: UserForm;
-}
-
-export interface AttendUserResponse {
-  message?: string;
-  error?: string;
-}
-
-export interface EditUserResponse {
-  message?: string;
-  error?: string;
-}
-
-export interface DeleteUserResponse {
-  message?: string;
-  error?: string;
+  user_form?: UserForm;
 }

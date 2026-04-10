@@ -5,16 +5,19 @@ import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
 
-import { AttendUser } from "./user_fetches";
+import { AddUser, AttendUser } from "./user_fetches";
+import { UserField } from "./[email]/page";
 
 interface AttendModalProps {
   show: boolean;
   onHide: () => void;
+  userEmail: string;
 }
-export function AttendModal({ show, onHide }: AttendModalProps) {
+export function AttendModal({ show, onHide, userEmail }: AttendModalProps) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState(false);
-  const [email, setEmail] = useState("");
+
+  const email = userEmail;
   const [password, setPassword] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,15 +27,20 @@ export function AttendModal({ show, onHide }: AttendModalProps) {
     if (!response) {
       setMessage("Failed to attend user.");
       setError(true);
+      return;
     }
 
     const responseBody = response?.data;
     if (responseBody?.error) {
       setError(true);
       setMessage(responseBody.error);
+      return;
     }
     if (responseBody?.message) {
+      setError(false);
       setMessage(responseBody.message);
+      onHide();
+      window.location.reload();
     }
   };
 
@@ -43,14 +51,14 @@ export function AttendModal({ show, onHide }: AttendModalProps) {
       </Modal.Header>
       <Modal.Body>
         {error && <Alert variant="danger">{message}</Alert>}
-        <Form onSubmit={() => handleSubmit}>
+        <Form onSubmit={(e) => void handleSubmit(e)}>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Email:</Form.Label>
             <Form.Control
               type="email"
               placeholder="Enter user email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              disabled
               required
             />
           </Form.Group>
@@ -64,71 +72,127 @@ export function AttendModal({ show, onHide }: AttendModalProps) {
               required
             />
           </Form.Group>
-          <div className="d-grid">
-            <Button variant="primary" type="submit">
-              Submit
-            </Button>
-          </div>
+          <Button variant="primary" type="submit" className="w-100">
+            Submit
+          </Button>
         </Form>
       </Modal.Body>
     </Modal>
   );
 }
 
-interface EditModalProps {
+interface EditorModalProps {
   show: boolean;
   onHide: () => void;
   title: string;
-  editorEmail: string;
-  setEditorEmail: (email: string) => void;
-  editorPassword: string;
-  setEditorPassword: (password: string) => void;
-  onSubmit: () => void;
+  email: string;
+  setEmail: (email: string) => void;
+  password: string;
+  setPassword: (password: string) => void;
+  onSubmit: (e: React.FormEvent) => Promise<void>;
 }
-export function EditModal({
+export function EditorModal({
   show,
   onHide,
   title,
-  editorEmail,
-  setEditorEmail,
-  editorPassword,
-  setEditorPassword,
+  email,
+  setEmail,
+  password,
+  setPassword,
   onSubmit,
-}: EditModalProps) {
+}: EditorModalProps) {
   return (
     <Modal show={show} onHide={onHide} centered>
       <Modal.Header closeButton>
         <Modal.Title>{title}</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
-        <Form onSubmit={onSubmit}>
-          <Form.Group className="mb-3" controlId="formBasicEmail">
-            <Form.Label>Email:</Form.Label>
-            <Form.Control
-              type="email"
-              value={editorEmail}
-              onChange={(e) => setEditorEmail(e.target.value)}
-              placeholder="Enter editor email"
-              required
-            />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="formBasicPassword">
-            <Form.Label>Password:</Form.Label>
-            <Form.Control
-              type="password"
-              value={editorPassword}
-              onChange={(e) => setEditorPassword(e.target.value)}
-              placeholder="Enter editor password"
-              required
-            />
-          </Form.Group>
-        </Form>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="primary" onClick={onSubmit}>
-          Submit
-        </Button>
-      </Modal.Footer>
+      <Form onSubmit={(e) => void onSubmit(e)}>
+        <Modal.Body>
+          <UserField label="Email" value={email} setEmail={setEmail} />
+          <UserField
+            label="Password"
+            value={password}
+            setPassword={setPassword}
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button type="submit" variant="primary">
+            Submit
+          </Button>
+        </Modal.Footer>
+      </Form>
+    </Modal>
+  );
+}
+
+interface AddModalProps {
+  show: boolean;
+  onHide: () => void;
+  title: string;
+}
+export function AddModal({ show, onHide, title }: AddModalProps) {
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState(false);
+  const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const response = await AddUser(email, firstName, lastName, password);
+    if (!response) {
+      setError(true);
+      setMessage("Failed to add user.");
+      return;
+    }
+
+    const responseBody = response?.data;
+    if (responseBody?.error) {
+      setError(true);
+      setMessage(responseBody.error);
+      return;
+    }
+    if (responseBody?.message) {
+      setError(false);
+      setMessage(responseBody.message);
+      onHide();
+      window.location.reload();
+    }
+  };
+
+  return (
+    <Modal show={show} onHide={onHide} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>{title}</Modal.Title>
+      </Modal.Header>
+      <Form onSubmit={(e) => void handleAdd(e)}>
+        <Modal.Body>
+          {error && <Alert variant="danger">{message}</Alert>}
+          <UserField label="Email" value={email} setEmail={setEmail} />
+          <UserField
+            label="First Name"
+            value={firstName}
+            setFirstName={setFirstName}
+          />
+          <UserField
+            label="Last Name"
+            value={lastName}
+            setLastName={setLastName}
+          />
+          <UserField
+            label="Password"
+            value={password}
+            setPassword={setPassword}
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button type="submit" variant="primary">
+            Submit
+          </Button>
+        </Modal.Footer>
+      </Form>
     </Modal>
   );
 }

@@ -9,7 +9,7 @@ import { Container, Row, Button, Card, Alert, Form } from "react-bootstrap";
 
 import { FetchUserForm, EditUser } from "@/app/users/user_fetches";
 import { UserRole } from "../user_types";
-import { EditModal } from "../user_modals";
+import { EditorModal } from "../user_modals";
 
 import { NotifyModal } from "@/app/components/modals";
 
@@ -23,15 +23,15 @@ export default function UserDetail({
 }: UserDetailProps): React.JSX.Element {
   const [message, setMessage] = useState<string>("");
   const [error, setError] = useState<boolean>(false);
-  const [editModal, setEditModal] = useState<boolean>(false);
+  const [editorModal, setEditorModal] = useState<boolean>(false);
   const [errorModal, setErrorModal] = useState<boolean>(false);
 
-  const userEmail = params.email;
-  const [newUserEmail, setNewUserEmail] = useState<string>(userEmail);
+  const emailParam = params.email;
+  const [email, setEmail] = useState<string>(emailParam);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [role, setRole] = useState<UserRole>(UserRole.STAFF);
-  const [userPassword, setUserPassword] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
 
   const [editorEmail, setEditorEmail] = useState("");
   const [editorPassword, setEditorPassword] = useState("");
@@ -47,7 +47,7 @@ export default function UserDetail({
 
   useEffect(() => {
     const loadUser = async () => {
-      const fetchedUser = await FetchUserForm(userEmail);
+      const fetchedUser = await FetchUserForm(emailParam);
       if (!fetchedUser) {
         setError(true);
         setMessage("Failed to load user detail.");
@@ -64,47 +64,55 @@ export default function UserDetail({
         setMessage(responseBody.error);
         setErrorModal(true);
       }
-      if (responseBody?.user) {
-        setNewUserEmail(responseBody.user.email);
-        setFirstName(responseBody.user.firstName);
-        setLastName(responseBody.user.lastName);
-        setRole(responseBody.user.role);
+      if (responseBody?.user_form) {
+        setEmail(responseBody.user_form.email);
+        setFirstName(responseBody.user_form.firstName);
+        setLastName(responseBody.user_form.lastName);
+        setRole(responseBody.user_form.role);
       }
     };
     void loadUser();
-  }, [router, userEmail]);
+  }, [router, emailParam]);
 
-  const handleEdit = async () => {
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     const response = await EditUser(
-      userEmail,
+      emailParam,
       {
-        email: newUserEmail,
+        email,
         firstName,
         lastName,
         role,
-        password: userPassword,
       },
+      password || undefined,
       editorEmail,
       editorPassword
     );
     if (!response) {
-      setMessage("Failed to perform user removal.");
-      setEditModal(true);
+      setMessage("Failed to perform user edit.");
+      setEditorModal(false);
+      setErrorModal(true);
+      return;
     }
-    if (response?.status !== 200) {
-      setEditModal(true);
+    if (response?.status === 401) {
+      localStorage.removeItem("branch-token");
+      router.push("/branches");
+      return;
     }
+
     const responseBody = response?.data;
     if (responseBody?.error) {
       setMessage(responseBody.error);
+      setEditorModal(false);
+      setErrorModal(true);
+      return;
     }
     if (responseBody?.message) {
-      setMessage(responseBody?.message);
+      setMessage(responseBody.message);
+      setEditorModal(false);
+      router.replace(`/users/${email}`);
     }
-
-    setEditModal(true);
-
-    window.location.reload();
   };
 
   return (
@@ -116,54 +124,57 @@ export default function UserDetail({
         title="User Editing"
         message={message}
       />
-      <EditModal
-        show={editModal}
-        onHide={() => setEditModal(false)}
-        title="User Editing"
-        editorEmail={editorEmail}
-        setEditorEmail={setEditorEmail}
-        editorPassword={editorPassword}
-        setEditorPassword={setEditorPassword}
-        onSubmit={() => handleEdit}
+      <EditorModal
+        show={editorModal}
+        onHide={() => setEditorModal(false)}
+        title="Editor Credentials"
+        email={editorEmail}
+        setEmail={setEditorEmail}
+        password={editorPassword}
+        setPassword={setEditorPassword}
+        onSubmit={handleEdit}
       />
-      <Card>
+      <Card className="w-75 mx-auto mt-5">
         <Card.Header>
           <Card.Title>Edit User Detail</Card.Title>
         </Card.Header>
-        <Card.Body>
-          {error ? (
-            <p className="h3">User not found</p>
-          ) : (
-            <Form>
-              <UserField
-                label="Email"
-                value={newUserEmail}
-                setNewUserEmail={setNewUserEmail}
-              />
-              <UserField
-                label="First Name"
-                value={firstName}
-                setFirstName={setFirstName}
-              />
-              <UserField
-                label="Last Name"
-                value={lastName}
-                setLastName={setLastName}
-              />
-              <UserField label="Role" value={role} setRole={setRole} />
-              <UserField
-                label="Password"
-                value=""
-                setUserPassword={setUserPassword}
-              />
-            </Form>
-          )}
-        </Card.Body>
-        <Card.Footer>
-          <Button variant="primary" onClick={() => setEditModal(true)}>
-            Submit
-          </Button>
-        </Card.Footer>
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setEditorModal(true);
+          }}
+        >
+          <Card.Body>
+            {error ? (
+              <p className="h3">User not found</p>
+            ) : (
+              <>
+                <UserField label="Email" value={email} setEmail={setEmail} />
+                <UserField
+                  label="First Name"
+                  value={firstName}
+                  setFirstName={setFirstName}
+                />
+                <UserField
+                  label="Last Name"
+                  value={lastName}
+                  setLastName={setLastName}
+                />
+                <UserField label="Role" value={role} setRole={setRole} />
+                <UserField
+                  label="Password"
+                  value=""
+                  setPassword={setPassword}
+                />
+              </>
+            )}
+          </Card.Body>
+          <Card.Footer>
+            <Button type="submit" variant="primary">
+              Submit
+            </Button>
+          </Card.Footer>
+        </Form>
       </Card>
     </Container>
   );
@@ -172,20 +183,20 @@ export default function UserDetail({
 interface UserFieldProps {
   label: string;
   value: string | UserRole;
-  setNewUserEmail?: (email: string) => void;
+  setEmail?: (email: string) => void;
   setFirstName?: (firstName: string) => void;
   setLastName?: (lastName: string) => void;
   setRole?: (role: UserRole) => void;
-  setUserPassword?: (password: string) => void;
+  setPassword?: (password: string) => void;
 }
-function UserField({
+export function UserField({
   label,
   value,
-  setNewUserEmail,
+  setEmail,
   setFirstName,
   setLastName,
   setRole,
-  setUserPassword,
+  setPassword,
 }: UserFieldProps): React.JSX.Element {
   const fieldInput = (): React.JSX.Element => {
     switch (label) {
@@ -194,7 +205,7 @@ function UserField({
           <Form.Control
             type="email"
             value={value}
-            onChange={(e) => setNewUserEmail?.(e.target.value)}
+            onChange={(e) => setEmail?.(e.target.value)}
             placeholder="Enter user email"
           />
         );
@@ -232,7 +243,7 @@ function UserField({
           <Form.Control
             type="password"
             value={value}
-            onChange={(e) => setUserPassword?.(e.target.value)}
+            onChange={(e) => setPassword?.(e.target.value)}
             placeholder="Enter new password"
           />
         );

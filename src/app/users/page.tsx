@@ -2,22 +2,28 @@
 
 import { useState, useEffect } from "react";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Image, { StaticImageData } from "next/image";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Container, Button, Table, Badge } from "react-bootstrap";
+import { Container, Button, Table, Badge, ButtonGroup } from "react-bootstrap";
+
+import { ConfirmModal, NotifyModal } from "@/app/components/modals";
+
+import AddIcon from "@/static/icons/add_icon.svg";
+import EditIcon from "@/static/icons/edit_icon.svg";
+import DeleteIcon from "@/static/icons/delete_icon.svg";
+import AttendIcon from "@/static/icons/attend_icon.svg";
 
 import { FetchBranchUsers, DeleteUser } from "./user_fetches";
 import { User, UserRole } from "./user_types";
-import { AttendModal } from "./user_modals";
-
-import { ConfirmModal, NotifyModal } from "@/app/components/modals";
+import { AttendModal, AddModal, EditorModal } from "./user_modals";
 
 export default function BranchUsers(): React.JSX.Element {
   const [message, setMessage] = useState<string>("");
   const [users, setUsers] = useState<User[]>([]);
   const [notifyModal, setNotifyModal] = useState<boolean>(false);
+  const [addModal, setAddModal] = useState<boolean>(false);
 
   const router = useRouter();
 
@@ -53,38 +59,55 @@ export default function BranchUsers(): React.JSX.Element {
   }, [router]);
 
   return (
-    <Container>
-      <>
-        <NotifyModal
-          show={notifyModal}
-          onHide={() => setNotifyModal(false)}
-          title="User Fetching Error"
-          message={message}
-        />
+    <Container className="mt-3 d-flex flex-column gap-2">
+      <NotifyModal
+        show={notifyModal}
+        onHide={() => setNotifyModal(false)}
+        title="User Fetching Error"
+        message={message}
+      />
+      <AddModal
+        show={addModal}
+        onHide={() => setAddModal(false)}
+        title="User Sign-Up"
+      />
+      <Container className="d-flex justify-content-between align-items-center mb-3">
         <h1>Branch&apos;s Users</h1>
-        <Table striped bordered hover>
-          <thead>
+        <Button
+          onClick={() => setAddModal(true)}
+          variant="primary"
+          className="p-2"
+        >
+          <Image
+            src={AddIcon as StaticImageData}
+            alt="Add"
+            width={30}
+            height={30}
+          />
+        </Button>
+      </Container>
+      <Table striped bordered hover>
+        <thead>
+          <tr>
+            <th>Full name</th>
+            <th>E-mail</th>
+            <th>Role</th>
+            <th>Attended?</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.length < 1 ? (
             <tr>
-              <th>Full name</th>
-              <th>E-mail</th>
-              <th>Role</th>
-              <th>Attended?</th>
-              <th>Actions</th>
+              <td colSpan={5} className="text-center">
+                No users exist in this branch.
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {users.length < 1 ? (
-              <tr>
-                <td colSpan={5} className="text-center">
-                  No users exist in this branch.
-                </td>
-              </tr>
-            ) : (
-              users.map((user) => <BranchUser key={user.email} user={user} />)
-            )}
-          </tbody>
-        </Table>
-      </>
+          ) : (
+            users.map((user) => <BranchUser key={user.email} user={user} />)
+          )}
+        </tbody>
+      </Table>
     </Container>
   );
 }
@@ -92,8 +115,14 @@ export default function BranchUsers(): React.JSX.Element {
 function BranchUser({ user }: { user: User }): React.JSX.Element {
   const [message, setMessage] = useState("");
   const [confirmModal, setConfirmModal] = useState<boolean>(false);
+  const [editorModal, setEditorModal] = useState<boolean>(false);
   const [attendModal, setAttendModal] = useState<boolean>(false);
   const [removeModal, setRemoveModal] = useState<boolean>(false);
+
+  const [editorEmail, setEditorEmail] = useState("");
+  const [editorPassword, setEditorPassword] = useState("");
+
+  const router = useRouter();
 
   const roleBadge = (role: UserRole): React.JSX.Element => {
     const roleMap: Record<UserRole, { text: string; color: string }> = {
@@ -115,30 +144,47 @@ function BranchUser({ user }: { user: User }): React.JSX.Element {
   };
 
   const RemoveUser = async (email: string) => {
-    const response = await DeleteUser(email);
+    const response = await DeleteUser(email, editorEmail, editorPassword);
     if (!response) {
       setMessage("Failed to perform user removal.");
       setRemoveModal(true);
+      return;
     }
-    if (response?.status !== 200) {
-      setMessage(response.data.message);
-      setRemoveModal(true);
+    if (response?.status === 401) {
+      localStorage.removeItem("branch-token");
+      router.push("/branches");
+      return;
     }
+
     const responseBody = response?.data;
     if (responseBody?.error) {
       setMessage(responseBody.error);
+      setRemoveModal(true);
+      return;
     }
     if (responseBody?.message) {
-      setMessage(responseBody?.message);
+      setMessage(responseBody.message);
+      setRemoveModal(true);
+      window.location.reload();
     }
-
-    setRemoveModal(true);
-
-    window.location.reload();
   };
 
   return (
     <>
+      <EditorModal
+        show={editorModal}
+        onHide={() => setEditorModal(false)}
+        title="Manager Credentials"
+        email={editorEmail}
+        setEmail={setEditorEmail}
+        password={editorPassword}
+        setPassword={setEditorPassword}
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setEditorModal(false);
+          setConfirmModal(true);
+        }}
+      />
       <ConfirmModal
         show={confirmModal}
         onHide={() => setConfirmModal(false)}
@@ -156,7 +202,11 @@ function BranchUser({ user }: { user: User }): React.JSX.Element {
         title="User Removal"
         message={message}
       />
-      <AttendModal show={attendModal} onHide={() => setAttendModal(false)} />
+      <AttendModal
+        show={attendModal}
+        onHide={() => setAttendModal(false)}
+        userEmail={user.email}
+      />
       <tr>
         <td>
           {user.firstName} {user.lastName}
@@ -171,24 +221,39 @@ function BranchUser({ user }: { user: User }): React.JSX.Element {
           )}
         </td>
         <td>
-          <Button onClick={() => setAttendModal(true)} variant="primary">
-            Attend
-          </Button>
-          <Button variant="warning" className="ms-2">
-            <Link
-              href={`users/${user.email}`}
-              className="text-white text-decoration-none"
+          <ButtonGroup>
+            <Button
+              onClick={() => router.push(`/users/${user.email}`)}
+              variant="warning"
             >
-              Edit
-            </Link>
-          </Button>
-          <Button
-            onClick={() => setConfirmModal(true)}
-            variant="danger"
-            className="ms-2"
-          >
-            Remove
-          </Button>
+              <Image
+                src={EditIcon as StaticImageData}
+                alt="Edit"
+                width={30}
+                height={30}
+              />
+            </Button>
+            <Button onClick={() => setEditorModal(true)} variant="danger">
+              <Image
+                src={DeleteIcon as StaticImageData}
+                alt="Delete"
+                width={30}
+                height={30}
+              />
+            </Button>
+            {user.attended ? (
+              <></>
+            ) : (
+              <Button onClick={() => setAttendModal(true)} variant="primary">
+                <Image
+                  src={AttendIcon as StaticImageData}
+                  alt="Attend"
+                  width={30}
+                  height={30}
+                />
+              </Button>
+            )}
+          </ButtonGroup>
         </td>
       </tr>
     </>

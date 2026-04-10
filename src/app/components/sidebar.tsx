@@ -1,22 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Link from "next/link";
 import Image, { StaticImageData } from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Nav, Row, Col } from "react-bootstrap";
+import { Nav, Col, Button, Container } from "react-bootstrap";
 
-import StreetBucksLogo from "@/static/images/streetbucks_logo.png";
-
-import StackIcon from "@/static/images/stack_icon.svg";
-import InsightIcon from "@/static/images/insight_icon.svg";
-import MenuIcon from "@/static/images/menu_icon.svg";
-import OrderIcon from "@/static/images/order_icon.svg";
-import StockIcon from "@/static/images/stock_icon.svg";
-import UserIcon from "@/static/images/user_icon.svg";
+import StreetBucksLogo from "@/static/logos/streetbucks_logo.png";
+import StackIcon from "@/static/icons/stack_icon.svg";
+import SignInIcon from "@/static/icons/signin_icon.svg";
+import KeyIcon from "@/static/icons/key_icon.svg";
+import SignOutIcon from "@/static/icons/signout_icon.svg";
+import InsightIcon from "@/static/icons/insight_icon.svg";
+import MenuIcon from "@/static/icons/menu_icon.svg";
+import OrderIcon from "@/static/icons/order_icon.svg";
+import StockIcon from "@/static/icons/stock_icon.svg";
+import UserIcon from "@/static/icons/user_icon.svg";
 
 interface NavItemProps {
   to: string;
@@ -58,6 +60,7 @@ export default function Sidebar(): JSX.Element {
   // but for now let's just use CSS variables or a simple context if needed.
   // Or simpler: The sidebar is fixed, so we just pad the main content.
   const [collapsed, setCollapsed] = useState(false);
+  const [adminToken, setAdminToken] = useState<string | null>(null);
 
   // Update body padding/margin when collapsed state changes?
   // Easier approach: Just keep the sidebar fixed and let the parent handle the margin?
@@ -68,16 +71,25 @@ export default function Sidebar(): JSX.Element {
   // For now, let's simply render it. The issue is likely that the parent <Row>
   // didn't account for the fixed positioning of this col.
 
+  const router = useRouter();
+
+  // Access sessionStorage only on client side
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setAdminToken(sessionStorage.getItem("admin-token"));
+    }
+  }, []);
+
   const navItems = [
     {
       to: "/dashboard",
-      icon: InsightIcon,
+      icon: InsightIcon as StaticImageData,
       label: "Dashboard",
     },
-    { to: "/menus", icon: MenuIcon, label: "Menus" },
-    { to: "/orders", icon: OrderIcon, label: "Orders" },
-    { to: "/stocks", icon: StockIcon, label: "Stocks" },
-    { to: "/users", icon: UserIcon, label: "Users" },
+    { to: "/menus", icon: MenuIcon as StaticImageData, label: "Menus" },
+    { to: "/orders", icon: OrderIcon as StaticImageData, label: "Orders" },
+    { to: "/stocks", icon: StockIcon as StaticImageData, label: "Stocks" },
+    { to: "/users", icon: UserIcon as StaticImageData, label: "Users" },
   ];
 
   return (
@@ -130,7 +142,12 @@ export default function Sidebar(): JSX.Element {
             alignSelf: collapsed ? "center" : "flex-start",
           }}
         >
-          <Image src={StackIcon} alt="toggle" width={24} height={24} />
+          <Image
+            src={StackIcon as StaticImageData}
+            alt="toggle"
+            width={24}
+            height={24}
+          />
         </button>
       </div>
 
@@ -149,11 +166,56 @@ export default function Sidebar(): JSX.Element {
 
       {/* Footer */}
       <div className="p-3 border-top border-light border-opacity-25 mt-auto">
-        {!collapsed && (
-          <p className="text-white text-opacity-75 small text-center m-0">
-            v0.1.0
-          </p>
-        )}
+        {!collapsed &&
+          (adminToken ? (
+            <Container className="d-flex flex-column gap-2 p-0">
+              <Button
+                onClick={() => router.push("/administration")}
+                variant="outline-light"
+                className="w-100 d-flex justify-content-center align-items-center gap-2"
+              >
+                <Image
+                  src={KeyIcon as StaticImageData}
+                  alt="admin-icon"
+                  width={30}
+                  height={30}
+                />
+                To Admin Section
+              </Button>
+              <Button
+                onClick={() => {
+                  sessionStorage.removeItem("admin-token");
+                  setAdminToken(null);
+                  router.push("/administration");
+                }}
+                variant="danger"
+                className="w-100 d-flex justify-content-center align-items-center gap-2"
+              >
+                <Image
+                  src={SignOutIcon as StaticImageData}
+                  alt="sign-out-icon"
+                  width={30}
+                  height={30}
+                />
+                Sign-Out from Admin
+              </Button>
+            </Container>
+          ) : (
+            <Link href="/administration" className="text-decoration-none">
+              <Button
+                variant="primary"
+                className="w-100 d-flex justify-content-center align-items-center gap-2"
+              >
+                <Image
+                  src={SignInIcon as StaticImageData}
+                  alt="sign-in-icon"
+                  width={30}
+                  height={30}
+                />
+                Admin Sign-In
+              </Button>
+            </Link>
+          ))}
       </div>
     </Col>
   );

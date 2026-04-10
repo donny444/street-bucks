@@ -54,8 +54,10 @@ export default function RootLayout({
             <div className="d-flex vh-100">
               <Sidebar />
               {/* distinct class for connection with sidebar state via CSS variables */}
-              <div className="flex-grow-1 main-content-wrapper">
-                <Container className="vh-100 p-0 m-0">{children}</Container>
+              <div className="flex-grow-1 main-content-wrapper d-flex flex-column">
+                <Container className="flex-grow-1 p-0 m-0 overflow-auto">
+                  {children}
+                </Container>
                 <Footer />
               </div>
             </div>

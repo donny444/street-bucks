@@ -10,16 +10,13 @@ import {
   OrderResponse,
 } from "./admin_types";
 
-const SERVER_URL =
-  process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
-
 export async function AdminSignin({
   email,
   password,
 }: AdminSignInParams): Promise<AxiosResponse<AdminSignInResponse> | undefined> {
   try {
     const response = await axios.post<AdminSignInResponse>(
-      `${SERVER_URL}/administrators/sign-in`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/users/sign-in/administrator`,
       {
         email,
         password,
@@ -36,14 +33,26 @@ export async function FetchBranches(): Promise<
   AxiosResponse<BranchResponse> | undefined
 > {
   try {
-    const response = await axios.get<BranchResponse>(`${SERVER_URL}/branches`);
-    // Assuming backend returns { branch_ids: [...] } and we map to our Branch interface
-    // But BranchResponse expects { branches: Branch[] }
-    // If backend returns ID list, we might need to adjust or map here.
-    // For now assuming backend returns structured list for admin or we adapt.
+    const response = await axios.get<BranchResponse>(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/branches`
+    );
     return response;
   } catch (err) {
     console.error("Failed to fetch branches:", err);
+    return undefined;
+  }
+}
+
+export async function AddBranch(): Promise<
+  AxiosResponse<BranchResponse> | undefined
+> {
+  try {
+    const response = await axios.post<BranchResponse>(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/branches`
+    );
+    return response;
+  } catch (err) {
+    console.error("Failed to add branch:", err);
     return undefined;
   }
 }
@@ -52,10 +61,30 @@ export async function FetchAllMenus(): Promise<
   AxiosResponse<MenuResponse> | undefined
 > {
   try {
-    const response = await axios.get<MenuResponse>(`${SERVER_URL}/menus`);
+    const response = await axios.get<MenuResponse>(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/menus`,
+      {
+        validateStatus: () => true,
+      }
+    );
     return response;
   } catch (err) {
     console.error("Failed to fetch menus:", err);
+    return undefined;
+  }
+}
+
+export async function UpdateMenu(
+  data: MenuResponse
+): Promise<AxiosResponse<MenuResponse> | undefined> {
+  try {
+    const response = await axios.put<MenuResponse>(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/menus`,
+      data
+    );
+    return response;
+  } catch (err) {
+    console.error("Failed to update menu:", err);
     return undefined;
   }
 }
@@ -64,10 +93,30 @@ export async function FetchRecipes(): Promise<
   AxiosResponse<RecipeResponse> | undefined
 > {
   try {
-    const response = await axios.get<RecipeResponse>(`${SERVER_URL}/recipes`);
+    const response = await axios.get<RecipeResponse>(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/recipes`,
+      {
+        validateStatus: () => true,
+      }
+    );
     return response;
   } catch (err) {
     console.error("Failed to fetch recipes:", err);
+    return undefined;
+  }
+}
+
+export async function UpdateRecipe(
+  data: RecipeResponse
+): Promise<AxiosResponse<RecipeResponse> | undefined> {
+  try {
+    const response = await axios.put<RecipeResponse>(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/recipes`,
+      data
+    );
+    return response;
+  } catch (err) {
+    console.error("Failed to update recipe:", err);
     return undefined;
   }
 }
@@ -77,11 +126,12 @@ export async function FetchUsersByName(
 ): Promise<AxiosResponse<UserResponse> | undefined> {
   try {
     const response = await axios.get<UserResponse>(
-      `${SERVER_URL}/users/search`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/users/search`,
       {
         params: {
           name,
         },
+        validateStatus: () => true,
       }
     );
     return response;
@@ -96,11 +146,9 @@ export async function FetchOrderByUuid(
 ): Promise<AxiosResponse<OrderResponse> | undefined> {
   try {
     const response = await axios.get<OrderResponse>(
-      `${SERVER_URL}/orders/find`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/orders/${uuid}/find`,
       {
-        params: {
-          uuid,
-        },
+        validateStatus: () => true,
       }
     );
     return response;

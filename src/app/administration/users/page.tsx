@@ -1,12 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+
+import Image, { StaticImageData } from "next/image";
 import { useRouter } from "next/navigation";
-import { FetchUsersByName } from "../admin_fetches";
-import { User } from "../admin_types";
+
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Table, Badge, Form, Button, Alert } from "react-bootstrap";
+
+import SearchIcon from "@/static/icons/search_icon.svg";
+
 import { NotifyModal } from "@/app/components/modals";
+
+import { FetchUsersByName } from "../admin_fetches";
+import { User } from "../admin_types";
 
 export default function UserSearchByName(): React.JSX.Element {
   const [message, setMessage] = useState<string>("");
@@ -17,13 +24,15 @@ export default function UserSearchByName(): React.JSX.Element {
   const router = useRouter();
 
   useEffect(() => {
-    const adminToken = localStorage.getItem("admin-token");
+    const adminToken = sessionStorage.getItem("admin-token");
     if (!adminToken) {
       router.push("/administration");
     }
   }, [router]);
 
-  const handleSearch = async () => {
+  const handleSearch = async (e: React.EventHandler) => {
+    e.preventDefault();
+
     const fetchedUsers = await FetchUsersByName(searchTerm);
     if (!fetchedUsers) {
       setMessage("Failed to load users.");
@@ -38,57 +47,62 @@ export default function UserSearchByName(): React.JSX.Element {
       setError(true);
       setNotifyModal(true);
     }
-    if (responseBody?.found_users) {
+    if (responseBody?.message && responseBody?.found_users) {
+      setMessage(responseBody.message);
+      setError(false);
       setUsers(responseBody.found_users);
     }
   };
 
   return (
-    <Container className="mt-4">
-      <>
-        <NotifyModal
-          show={notifyModal}
-          onHide={() => setNotifyModal(false)}
-          title="User Fetching Error"
-          message={message}
+    <Container>
+      <NotifyModal
+        show={notifyModal}
+        onHide={() => setNotifyModal(false)}
+        title="User Searching"
+        message={message}
+      />
+      <p className="h2 text-center">User Lookup</p>
+      <Form onSubmit={handleSearch} className="d-flex mb-2 gap-0">
+        <Form.Control
+          type="text"
+          placeholder="Search users by name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="rounded-end-0"
         />
-        <p className="h2">User Lookup</p>
-        <Form onSubmit={() => handleSearch} className="d-flex mb-2">
-          <Form.Control
-            type="text"
-            placeholder="Search users by name..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-80"
+        <Button variant="primary" type="submit" className="rounded-start-0">
+          <Image
+            src={SearchIcon as StaticImageData}
+            alt="Search"
+            width={30}
+            height={30}
           />
-          <Button variant="primary" type="submit" className="w-20">
-            Search
-          </Button>
-        </Form>
-        {error && <Alert variant="danger">{message}</Alert>}
-        <Table striped bordered hover>
-          <thead>
+        </Button>
+      </Form>
+      {error && <Alert variant="danger">{message}</Alert>}
+      <Table striped bordered hover>
+        <thead>
+          <tr>
+            <th>E-mail</th>
+            <th>Branch ID</th>
+            <th>First name</th>
+            <th>Last name</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.length < 1 ? (
             <tr>
-              <th>E-mail</th>
-              <th>Branch ID</th>
-              <th>First name</th>
-              <th>Last name</th>
-              <th>Role</th>
+              <td colSpan={5} className="text-center">
+                No users found.
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {users.length < 1 ? (
-              <tr>
-                <td colSpan={5} className="text-center">
-                  No users found.
-                </td>
-              </tr>
-            ) : (
-              users.map((user) => <FoundUserRow key={user.email} user={user} />)
-            )}
-          </tbody>
-        </Table>
-      </>
+          ) : (
+            users.map((user) => <FoundUserRow key={user.email} user={user} />)
+          )}
+        </tbody>
+      </Table>
     </Container>
   );
 }

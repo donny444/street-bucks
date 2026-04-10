@@ -1,11 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
+
 import { useRouter } from "next/navigation";
-import { FetchBranches } from "../admin_fetches";
+import Image from "next/image";
+
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Container, ListGroup, Alert } from "react-bootstrap";
+import { Container, Button, Row, Col, Card, Alert } from "react-bootstrap";
+
 import { NotifyModal } from "@/app/components/modals";
+
+import AddIcon from "@/static/icons/add_icon.svg";
+
+import { FetchBranches, AddBranch } from "../admin_fetches";
 
 export default function AdminBranches() {
   const [message, setMessage] = useState<string>("");
@@ -15,63 +22,84 @@ export default function AdminBranches() {
   const router = useRouter();
 
   useEffect(() => {
-    const adminToken = localStorage.getItem("admin-token");
+    const adminToken = sessionStorage.getItem("admin-token");
     if (!adminToken) {
       router.push("/administration");
     }
   }, [router]);
 
+  const loadBranches = async () => {
+    const fetchedBranches = await FetchBranches();
+    if (!fetchedBranches) {
+      setMessage("Failed to load branches.");
+      setError(true);
+      setNotifyModal(true);
+      return;
+    }
+
+    const responseBody = fetchedBranches.data;
+    if (responseBody?.error) {
+      setMessage(responseBody.error);
+      setError(true);
+      setNotifyModal(true);
+    }
+    if (responseBody?.branch_ids) {
+      setBranches(responseBody.branch_ids);
+    }
+  };
+
   useEffect(() => {
-    const loadBranches = async () => {
-      const fetchedBranches = await FetchBranches();
-      if (!fetchedBranches) {
-        setMessage("Failed to load branches.");
-        setError(true);
-        setNotifyModal(true);
-        return;
-      }
-
-      const responseBody = fetchedBranches.data;
-      if (responseBody?.error) {
-        setMessage(responseBody.error);
-        setError(true);
-        setNotifyModal(true);
-      }
-      if (responseBody?.branch_ids) {
-        setBranches(responseBody.branch_ids);
-      }
-    };
-
     void loadBranches();
   }, []);
 
+  const handleAddBranch = async () => {
+    const result = await AddBranch();
+    if (result?.data?.branch_ids) {
+      // Reload branches
+      void loadBranches();
+    } else {
+      setMessage("Failed to add branch.");
+      setError(true);
+      setNotifyModal(true);
+    }
+  };
+
   return (
-    <Container className="mt-4">
-      <>
-        <NotifyModal
-          show={notifyModal}
-          onHide={() => setNotifyModal(false)}
-          title="Branch Fetching Error"
-          message={message}
-        />
+    <Container className="d-flex flex-column gap-2">
+      <NotifyModal
+        show={notifyModal}
+        onHide={() => setNotifyModal(false)}
+        title="Branch Fetching Error"
+        message={message}
+      />
+      <Container className="d-flex justify-content-between align-items-center">
         <p className="h2">Branch Management</p>
-        {error && (
-          <Alert variant="danger" dismissible>
-            {message}
-          </Alert>
+        <Button variant="success" onClick={() => handleAddBranch}>
+          <Image src={AddIcon} alt="Add Branch" width={40} height={40} />
+        </Button>
+      </Container>
+      {error && (
+        <Alert variant="danger" dismissible>
+          {message}
+        </Alert>
+      )}
+      <Row>
+        {branches.length < 1 ? (
+          <Col>
+            <div className="text-center">No branches found.</div>
+          </Col>
+        ) : (
+          branches.map((br) => (
+            <Col key={br} md={4} className="mb-3">
+              <Card>
+                <Card.Body>
+                  <Card.Title>Branch ID: {br}</Card.Title>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))
         )}
-        <ListGroup>
-          {branches.length < 1 ? (
-            <ListGroup.Item className="text-center">
-              No branches found.
-            </ListGroup.Item>
-          ) : (
-            branches.map((br) => (
-              <ListGroup.Item key={br}>Branch ID: {br}</ListGroup.Item>
-            ))
-          )}
-        </ListGroup>
-      </>
+      </Row>
     </Container>
   );
 }

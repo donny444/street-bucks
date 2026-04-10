@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import axios, { AxiosResponse } from "axios";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Container, Row, Col, Button } from "react-bootstrap";
+import { Container, Row, Col, ButtonGroup, Button } from "react-bootstrap";
 
 import { Bar, Pie, Line } from "react-chartjs-2";
 import {
@@ -53,6 +53,7 @@ import {
   ResponseForPieChart,
   CategoricalSales,
   PeriodEnum,
+  SortEnum,
 } from "./insight_types.ts";
 
 export default function InsightsPage() {
@@ -66,8 +67,8 @@ export default function InsightsPage() {
   }, [router]);
 
   return (
-    <Container className="bg-light p-3 h-100 d-flex flex-column" fluid>
-      <Row className="flex-grow-1 h-50 mb-3">
+    <Container className="bg-light p-3 d-flex flex-column" fluid>
+      <Row className="mb-3" style={{ height: "500px" }}>
         <Col md={6} className="h-100">
           <TopMenusChart />
         </Col>
@@ -75,7 +76,7 @@ export default function InsightsPage() {
           <SalesCountNumber />
         </Col>
       </Row>
-      <Row className="flex-grow-1 h-50">
+      <Row style={{ height: "500px" }}>
         <Col className="h-100">
           <SalesByPeriodChart />
         </Col>
@@ -85,9 +86,29 @@ export default function InsightsPage() {
 }
 
 function TopMenusChart() {
+  const [sortBy, setSortBy] = useState<SortEnum>(SortEnum.QUANTITY);
+
   return (
-    <Container className="bg-white h-100 rounded-3 p-3 d-flex align-items-center justify-content-center">
-      <div style={{ height: "100%", width: "100%", position: "relative" }}>
+    <Container className="bg-white h-100 rounded-3 p-3 d-flex flex-column">
+      <ButtonGroup className="mb-3" role="group" aria-label="Top menus sold">
+        <Button
+          variant={sortBy === SortEnum.QUANTITY ? "primary" : "outline-primary"}
+          onClick={() => {
+            setSortBy(SortEnum.QUANTITY);
+          }}
+        >
+          {SortEnum.QUANTITY}
+        </Button>
+        <Button
+          variant={sortBy === SortEnum.REVENUE ? "primary" : "outline-primary"}
+          onClick={() => {
+            setSortBy(SortEnum.REVENUE);
+          }}
+        >
+          {SortEnum.REVENUE}
+        </Button>
+      </ButtonGroup>
+      <div style={{ height: "90%", width: "100%", position: "relative" }}>
         <PieChartSales
           pieChartData={pieChartData}
           pieChartOptions={{
@@ -95,6 +116,7 @@ function TopMenusChart() {
             maintainAspectRatio: false,
             responsive: true,
           }}
+          sortBy={sortBy}
         />
       </div>
     </Container>
@@ -103,8 +125,13 @@ function TopMenusChart() {
 interface PieChartSalesProps {
   pieChartData: ChartData<"pie">;
   pieChartOptions: ChartOptions<"pie">;
+  sortBy: SortEnum;
 }
-function PieChartSales({ pieChartData, pieChartOptions }: PieChartSalesProps) {
+function PieChartSales({
+  pieChartData,
+  pieChartOptions,
+  sortBy,
+}: PieChartSalesProps) {
   const [chartData, setChartData] = useState(pieChartData);
   const [chartOptions, setChartOptions] = useState(pieChartOptions);
   const [error, setError] = useState<string | null>(null);
@@ -117,16 +144,18 @@ function PieChartSales({ pieChartData, pieChartOptions }: PieChartSalesProps) {
         setLoading(true);
 
         const insightResponse: AxiosResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/insights/top-menus`,
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/insights/top-menus-by-${sortBy}`,
           {
             headers: {
               "branch-token": localStorage.getItem("branch-token"),
             },
+            validateStatus: () => true,
           }
         );
         if (insightResponse?.status === 401) {
           localStorage.removeItem("branch-token");
           router.push("/branches");
+          return;
         }
         if (insightResponse.status !== 200) {
           setError("Unable to fetch sales data");
@@ -142,9 +171,22 @@ function PieChartSales({ pieChartData, pieChartOptions }: PieChartSalesProps) {
           datasets: [
             {
               ...chartData.datasets[0],
+              label: `${sortBy === SortEnum.QUANTITY ? "Quantity" : "Revenue"} sold`,
               data,
             },
           ],
+        });
+        setChartOptions({
+          ...chartOptions,
+          plugins: {
+            ...chartOptions.plugins,
+            title: {
+              ...chartOptions.plugins?.title,
+              text: `Top 5 Menus Sold by ${
+                sortBy === SortEnum.QUANTITY ? "Quantity" : "Revenue"
+              }`,
+            },
+          },
         });
         console.log(`Fetched top menus sold: `, message);
       } catch (err) {
@@ -156,7 +198,7 @@ function PieChartSales({ pieChartData, pieChartOptions }: PieChartSalesProps) {
     };
 
     void fetchSalesData();
-  }, [pieChartData]);
+  }, [pieChartData, sortBy]);
 
   return (
     <>
@@ -191,11 +233,13 @@ function SalesCountNumber() {
             headers: {
               "branch-token": localStorage.getItem("branch-token"),
             },
+            validateStatus: () => true,
           }
         );
         if (insightResponse?.status === 401) {
           localStorage.removeItem("branch-token");
           router.push("/branches");
+          return;
         }
         if (insightResponse.status !== 200) {
           setError("Unable to fetch sales count");
@@ -219,9 +263,9 @@ function SalesCountNumber() {
   }, [routeParam]);
 
   return (
-    <Container className="bg-white h-100 rounded-3 p-3 d-flex align-items-center justify-content-center">
+    <Container className="bg-white h-100 rounded-3 p-3 d-flex flex-column align-items-center justify-content-center">
       <div
-        className="btn-group mb-3 align-self-start"
+        className="btn-group mb-3 w-100"
         role="group"
         aria-label="Time period"
       >
@@ -255,7 +299,7 @@ function SalesCountNumber() {
           {PeriodEnum.MONTHLY}
         </Button>
       </div>
-      <Container className="bg-danger text-white h-100 rounded-2 p-3 m-2 d-flex align-items-center justify-content-center">
+      <Container className="bg-danger text-white h-100 rounded-2 p-3 m-2 d-flex flex-column align-items-center justify-content-center">
         <p className="h2">{`${period} sales count`}</p>
         {loading ? (
           <p className="h3">Loading...</p>
@@ -275,7 +319,7 @@ function SalesByPeriodChart() {
   return (
     <Container className="bg-white h-100 rounded-3 p-3 d-flex flex-column">
       <div
-        className="btn-group mb-3 align-self-start"
+        className="btn-group mb-3 w-100"
         role="group"
         aria-label="Time period"
       >
@@ -363,10 +407,12 @@ function LineChartSales({
           headers: {
             "branch-token": localStorage.getItem("branch-token"),
           },
+          validateStatus: () => true,
         });
         if (insightResponse?.status === 401) {
           localStorage.removeItem("branch-token");
           router.push("/branches");
+          return;
         }
         if (insightResponse.status !== 200) {
           setError("Unable to fetch sales data");
@@ -450,42 +496,48 @@ function BarChartSales({ barChartData }: BarChartSalesProps) {
       try {
         setLoading(true);
 
-        const insightResponse: AxiosResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/insights/sales-in-year`,
-          {
-            headers: {
-              "branch-token": localStorage.getItem("branch-token"),
-            },
-          }
-        );
+        const insightResponse: AxiosResponse<ResponseForBarChart> =
+          await axios.get(
+            `${process.env.NEXT_PUBLIC_SERVER_URL}/insights/sales-in-year`,
+            {
+              headers: {
+                "branch-token": localStorage.getItem("branch-token"),
+              },
+              validateStatus: () => true,
+            }
+          );
         if (insightResponse?.status === 401) {
           localStorage.removeItem("branch-token");
           router.push("/branches");
+          return;
         }
         if (insightResponse.status !== 200) {
           setError("Unable to fetch sales data");
           throw new Error("Unable to fetch sales data");
         }
 
-        const responseBody: ResponseForBarChart = insightResponse.data;
+        const responseBody = insightResponse.data;
         const { message, insight } = responseBody;
 
         // Since datasets are modified inside the map, we need to be careful with typing
-        const updatedDatasets = chartData.datasets.map((dataset) => {
-          const matchedInsightEntry = insight.find(
-            (entry: CategoricalSales) =>
-              entry.label === dataset.label?.toLowerCase()
-          );
+        setChartData((prevChartData) => {
+          const updatedDatasets = prevChartData.datasets.map((dataset) => {
+            const matchedInsightEntry = insight.find(
+              (entry: CategoricalSales) =>
+                entry.label?.toLowerCase() ===
+                (dataset.label ?? "").toLowerCase()
+            );
 
-          if (matchedInsightEntry) {
-            return { ...dataset, data: matchedInsightEntry.data };
-          }
-          return dataset;
-        });
+            if (matchedInsightEntry) {
+              return { ...dataset, data: matchedInsightEntry.data };
+            }
+            return dataset;
+          });
 
-        setChartData({
-          ...chartData,
-          datasets: updatedDatasets as any, // Type assertion to avoid complexity with chart.js union types
+          return {
+            ...prevChartData,
+            datasets: updatedDatasets as ChartDataset<"bar">[],
+          };
         });
 
         console.log(`Fetched annual sales data: `, message);
@@ -498,7 +550,7 @@ function BarChartSales({ barChartData }: BarChartSalesProps) {
     };
 
     void fetchSalesData();
-  }, [barChartData]); // Depend on barChartData, usually static from props
+  }, [barChartData, router]);
 
   return (
     <>

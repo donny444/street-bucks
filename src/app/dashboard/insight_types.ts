@@ -1,6 +1,6 @@
 export type ResponseForPieChart = {
   message: string;
-  insight: SoldMenuByQuantity;
+  insight: SoldMenus;
 };
 
 export type ResponseForLineChart = {
@@ -28,7 +28,12 @@ export enum PeriodEnum {
   ANNUAL = "annual",
 }
 
-type SoldMenuByQuantity = {
+type SoldMenus = {
   labels: string[];
   data: number[];
 };
+
+export enum SortEnum {
+  QUANTITY = "quantity",
+  REVENUE = "revenue",
+}

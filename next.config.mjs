@@ -11,6 +11,15 @@ const nextConfig = {
       "localhost",
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/menus",
+        destination: "/menus/hot",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

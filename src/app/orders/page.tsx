@@ -46,8 +46,8 @@ export default function TodayOrders(): React.JSX.Element {
         setOrders(responseBody.today_orders);
       }
     };
-    loadOrders();
-  }, []);
+    void loadOrders();
+  }, [router]);
 
   return (
     <Container>
@@ -95,9 +95,9 @@ function TodayOrder({ order }: { order: Order }): React.JSX.Element {
       <td>{new Date(order.timestamp).toLocaleString()}</td>
       <td>{order.totalPrice}</td>
       <td>
-        <Button variant="primary">
-          <Link href={`orders/${order.uuid}`}>Inspect</Link>
-        </Button>
+        <Link href={`orders/${order.uuid}`}>
+          <Button variant="primary">Inspect</Button>
+        </Link>
       </td>
     </tr>
   );

@@ -5,16 +5,18 @@ export interface Order {
 }
 
 export interface Entry {
-  menuName: string;
-  price: number;
   quantity: number;
+  menu: {
+    name: string;
+    price: number;
+  };
 }
 
 export interface SpecificOrder {
   uuid: Order["uuid"];
   timestamp: Order["timestamp"];
   totalPrice: Order["totalPrice"];
-  entries: Entry[];
+  entry: Entry[];
 }
 
 export interface TodayOrdersResponse {

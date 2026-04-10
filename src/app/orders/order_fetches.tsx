@@ -13,6 +13,7 @@ export async function FetchTodayOrders(): Promise<
         headers: {
           "branch-token": localStorage.getItem("branch-token"),
         },
+        validateStatus: () => true,
       }
     );
 
@@ -33,6 +34,7 @@ export async function FetchSpecificOrder(
         headers: {
           "branch-token": localStorage.getItem("branch-token"),
         },
+        validateStatus: () => true,
       }
     );
 
@@ -53,6 +55,7 @@ export async function FetchReceipt(
         headers: {
           "branch-token": localStorage.getItem("branch-token"),
         },
+        validateStatus: () => true,
         responseType: "blob",
       }
     );

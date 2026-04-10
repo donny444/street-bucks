@@ -72,37 +72,32 @@ export default function OrderDetail({
   };
 
   return (
-    <Container className="bg-light p-3">
-      <>
-        <NotifyModal
-          show={notifyModal}
-          onHide={() => setNotifyModal(false)}
-          title="User Fetching Error"
-          message={message}
-        />
-        <Container>
-          <Col className="justify-content-center">
-            <p className="h3">Order Detail</p>
-            {orderDetail ? (
-              <>
-                <OrderField label="UUID" value={orderDetail.uuid} />
-                <OrderField
-                  label="Date-time"
-                  value={convertTimestamp(orderDetail.timestamp)}
-                />
-                <OrderField
-                  label="Total price"
-                  value={orderDetail.totalPrice}
-                />
-                <OrderField label="Entries" value={orderDetail.entries} />
-              </>
-            ) : (
-              <p>Order unavailable.</p>
-            )}
-          </Col>
-        </Container>
-        <OrderReceipt uuid={orderUuid} />
-      </>
+    <Container className="m-2">
+      <NotifyModal
+        show={notifyModal}
+        onHide={() => setNotifyModal(false)}
+        title="User Fetching Error"
+        message={message}
+      />
+      <Container className="bg-light p-3">
+        <Col className="justify-content-center">
+          <p className="h3">Order Detail</p>
+          {orderDetail ? (
+            <>
+              <OrderField label="UUID" value={orderDetail.uuid} />
+              <OrderField
+                label="Date-time"
+                value={convertTimestamp(orderDetail.timestamp)}
+              />
+              <OrderField label="Total price" value={orderDetail.totalPrice} />
+              <OrderField label="Entries" value={orderDetail.entry} />
+            </>
+          ) : (
+            <p>Order unavailable.</p>
+          )}
+        </Col>
+      </Container>
+      <OrderReceipt uuid={orderUuid} />
     </Container>
   );
 }
@@ -122,7 +117,7 @@ function OrderField({ label, value }: OrderFieldProps): React.JSX.Element {
           <ul>
             {value.map((e, i) => (
               <li key={i}>
-                {e.quantity} x {e.menuName} : ${e.price}
+                {e.quantity} x {e.menu.name} : ${e.menu.price}
               </li>
             ))}
           </ul>
@@ -172,11 +167,11 @@ function OrderReceipt({ uuid }: OrderReceiptProps): React.JSX.Element {
         URL.revokeObjectURL(pdfUrl);
       }
     };
-  }, [uuid, pdfUrl]);
+  }, [uuid]);
 
   return (
     <Container className="mt-4">
-      <p className="h4 mb-3">Receipt</p>
+      <p className="h3">Receipt</p>
       {loading && (
         <div className="text-center p-4">
           <Spinner animation="border" role="status">

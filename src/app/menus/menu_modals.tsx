@@ -4,13 +4,13 @@ import { useState } from "react";
 
 import Image from "next/image";
 
-import { include } from "../orders/cart_slice";
+import { include } from "./cart/cart_slice";
 import { useDispatch } from "react-redux";
 
 import { Menu } from "./menu_types";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Button, Modal } from "react-bootstrap";
+import { ButtonGroup, Button, Modal } from "react-bootstrap";
 
 interface MenuModalProps {
   show: boolean;
@@ -30,38 +30,38 @@ export function MenuModal({
       <Modal.Header closeButton>
         <Modal.Title>{menu.name}</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
+      <Modal.Body
+        className="d-flex flex-column align-items-center"
+        style={{ minHeight: "300px" }}
+      >
         <Image
-          src={`${process.env.NEXT_PUBLIC_SERVER_URL}/${menu.imagePath}`}
+          src={`${process.env.NEXT_PUBLIC_SERVER_URL}/assets/menus/${menu.imagePath}`}
           alt={menu.imagePath}
           width={300}
           height={300}
-          fill={false}
         />
-        <p>Price: {menu.price}</p>
       </Modal.Body>
       <Modal.Footer>
-        <div className="d-flex align-items-center">
+        <p className="h5">Price: {menu.price}</p>
+        <ButtonGroup>
           <Button
             variant="secondary"
             onClick={() => setQuantity((prev) => Math.max(prev - 1, 1))}
           >
             -
           </Button>
-          <span className="mx-3">
-            <input
-              type="number"
-              value={quantity}
-              style={{ width: "60px", textAlign: "center" }}
-            />
-          </span>
+          <input
+            type="number"
+            value={quantity}
+            style={{ width: "60px", textAlign: "center" }}
+          />
           <Button
             variant="secondary"
             onClick={() => setQuantity((prev) => Math.min(prev + 1, 10))}
           >
             +
           </Button>
-        </div>
+        </ButtonGroup>
         <Button
           variant="primary"
           onClick={() => {

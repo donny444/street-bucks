@@ -38,7 +38,7 @@ export default function MenusByCategory({
         setMenus(responseBody?.menus);
       }
     };
-    loadMenus();
+    void loadMenus();
   }, [menuCategory]);
 
   return (
@@ -77,16 +77,16 @@ function MenuCard({ menu }: { menu: Menu }): React.JSX.Element {
           variant="top"
           src={`${process.env.NEXT_PUBLIC_SERVER_URL}/assets/menus/${menu.imagePath}`}
           alt={menu.name}
-          width={200}
-          height={200}
+          className="img-fluid"
+          style={{ aspectRatio: "1/1", objectFit: "contain" }}
         />
         <Card.Body className="d-flex flex-column">
           <Card.Title>{menu.name}</Card.Title>
-          <Card.Text>Price: {menu.price}</Card.Text>
+          <Card.Text>Price: {menu.price} THB</Card.Text>
           <Button
             variant="primary"
             onClick={() => setMenuModal(true)}
-            className="mt-auto"
+            className="w-100"
           >
             Add
           </Button>

@@ -4,6 +4,11 @@ export interface Menu {
   imagePath: string;
 }
 
+export interface OrderedMenu {
+  menuId: string;
+  quantity: number;
+}
+
 export enum MenuCategory {
   HOT = "hot",
   ICED = "iced",
@@ -19,5 +24,11 @@ export interface MenuResponse {
 export interface SpecificMenuResponse {
   message?: string;
   menu?: Menu;
+  error?: string;
+}
+
+export interface MakeOrderResponse {
+  message?: string;
+  order_id?: string;
   error?: string;
 }

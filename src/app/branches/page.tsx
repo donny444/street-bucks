@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 
 import { FetchBranchIds, BranchSignin } from "./branch_fetches";
 
-import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 
 import { NotifyModal } from "@/app/components/modals";
@@ -34,6 +33,10 @@ export default function BranchSignIn() {
         setMessage("Failed to load branch IDs.");
         setNotifyModal(true);
       }
+      if (fetchedBranchIds?.status === 401) {
+        localStorage.removeItem("branch-token");
+        router.push("/branches");
+      }
 
       const responseBody = fetchedBranchIds?.data;
       if (responseBody?.error) {
@@ -46,8 +49,8 @@ export default function BranchSignIn() {
         setBranchIds(responseBody.branch_ids);
       }
     };
-    loadBranchIds();
-  }, []);
+    void loadBranchIds();
+  }, [router]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();

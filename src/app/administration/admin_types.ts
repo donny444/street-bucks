@@ -34,6 +34,25 @@ export interface MenuResponse {
   error?: string;
 }
 
+export interface MenuIngredient {
+  recipeId: string;
+  amount: number;
+}
+
+export interface MenuForm {
+  name: string;
+  price: number;
+  category: MenuCategory;
+  file: File | null;
+  ingredient: MenuIngredient[];
+}
+
+export interface MenuFormResponse {
+  message?: string;
+  menu_form?: MenuForm;
+  error?: string;
+}
+
 export interface Recipe {
   name: string;
   unit: string;

@@ -8,6 +8,7 @@ import {
   RecipeResponse,
   UserResponse,
   OrderResponse,
+  MenuFormResponse,
 } from "./admin_types";
 
 export async function AdminSignin({
@@ -74,7 +75,24 @@ export async function FetchAllMenus(): Promise<
   }
 }
 
-export async function UpdateMenu(
+export async function FetchMenuForm(
+  name: string
+): Promise<AxiosResponse<MenuFormResponse> | undefined> {
+  try {
+    const response = await axios.get<MenuFormResponse>(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/menus/${name}/form`,
+      {
+        validateStatus: () => true,
+      }
+    );
+    return response;
+  } catch (err) {
+    console.error("Failed to fetch menu form:", err);
+    return undefined;
+  }
+}
+
+export async function EditMenu(
   data: MenuResponse
 ): Promise<AxiosResponse<MenuResponse> | undefined> {
   try {

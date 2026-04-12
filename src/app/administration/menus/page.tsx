@@ -13,23 +13,20 @@ import {
   Badge,
   Button,
   Alert,
-  Modal,
-  Form,
   ButtonGroup,
 } from "react-bootstrap";
 
 import { NotifyModal } from "@/app/components/modals";
 
-import { FetchAllMenus, UpdateMenu } from "../admin_fetches";
+import { FetchAllMenus } from "../admin_fetches";
 import { Menu, MenuCategory } from "../admin_types";
 
-export default function AdminMenus(): React.JSX.Element {
+export default function MenuManagementPage(): React.JSX.Element {
   const [message, setMessage] = useState<string>("");
   const [error, setError] = useState<boolean>(false);
   const [menus, setMenus] = useState<Menu[]>([]);
   const [notifyModal, setNotifyModal] = useState<boolean>(false);
-  const [showEditModal, setShowEditModal] = useState<boolean>(false);
-  const [selectedMenu, setSelectedMenu] = useState<Menu | null>(null);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -63,26 +60,6 @@ export default function AdminMenus(): React.JSX.Element {
     void loadMenus();
   }, []);
 
-  const handleEditClick = (menu: Menu) => {
-    setSelectedMenu(menu);
-    setShowEditModal(true);
-  };
-
-  const handleSaveMenu = async (updatedMenu: Menu) => {
-    // Assuming backend takes { menus: [updatedMenu] } or similar for update as discussed
-    // For now, doing a basic update call.
-    // In a real scenario, check admin_fetches.ts for expected payload.
-    // I defined it as accepting MenuResponse, which usually wraps a list.
-    const res = await UpdateMenu({ menus: [updatedMenu] });
-    if (res && !res.data.error) {
-      void loadMenus();
-      setShowEditModal(false);
-    } else {
-      setMessage("Failed to update menu");
-      setNotifyModal(true);
-    }
-  };
-
   return (
     <Container>
       <NotifyModal
@@ -99,30 +76,16 @@ export default function AdminMenus(): React.JSX.Element {
         ) : (
           menus.map((m) => (
             <Col key={m.name} xs={12} sm={6} md={4} lg={3} className="mb-4">
-              <MenuCard menu={m} onEdit={() => handleEditClick(m)} />
+              <MenuCard menu={m} />
             </Col>
           ))
         )}
       </Row>
-      {selectedMenu && (
-        <EditMenuModal
-          show={showEditModal}
-          onHide={() => setShowEditModal(false)}
-          menu={selectedMenu}
-          onSave={() => handleSaveMenu}
-        />
-      )}
     </Container>
   );
 }
 
-function MenuCard({
-  menu,
-  onEdit,
-}: {
-  menu: Menu;
-  onEdit: () => void;
-}): React.JSX.Element {
+function MenuCard({ menu }: { menu: Menu }): React.JSX.Element {
   // const router = useRouter();
   const categoryBadge = () => {
     switch (menu.category) {
@@ -167,7 +130,11 @@ function MenuCard({
         {categoryBadge()}
         <Card.Text>Price: {menu.price} THB</Card.Text>
         <ButtonGroup className="w-100">
-          <Button variant="warning" onClick={onEdit} className="w-50">
+          <Button
+            variant="warning"
+            href={`/administration/menus/${menu.name}`}
+            className="w-50"
+          >
             Edit
           </Button>
           <Button variant="danger" className="w-50">
@@ -176,95 +143,5 @@ function MenuCard({
         </ButtonGroup>
       </Card.Body>
     </Card>
-  );
-}
-
-function EditMenuModal({
-  show,
-  onHide,
-  menu,
-  onSave,
-}: {
-  show: boolean;
-  onHide: () => void;
-  menu: Menu;
-  onSave: (m: Menu) => void;
-}) {
-  const [formData, setFormData] = useState<Menu>(menu);
-
-  useEffect(() => {
-    setFormData(menu);
-  }, [menu]);
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = () => {
-    onSave(formData);
-  };
-
-  return (
-    <Modal show={show} onHide={onHide}>
-      <Modal.Header closeButton>
-        <Modal.Title>Edit Menu: {menu.name}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <Form>
-          <Form.Group className="mb-3">
-            <Form.Label>Name</Form.Label>
-            <Form.Control
-              type="text"
-              name="name"
-              value={formData.name}
-              disabled
-            />
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Price</Form.Label>
-            <Form.Control
-              type="number"
-              name="price"
-              value={formData.price}
-              onChange={handleChange}
-            />
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Category</Form.Label>
-            <Form.Select
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-            >
-              <option value="HOT">HOT</option>
-              <option value="ICED">ICED</option>
-              <option value="BAKERY">BAKERY</option>
-            </Form.Select>
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Image Path</Form.Label>
-            <Form.Control
-              type="text"
-              name="imagePath"
-              value={formData.imagePath}
-              onChange={handleChange}
-            />
-          </Form.Group>
-        </Form>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
-          Close
-        </Button>
-        <Button variant="primary" onClick={handleSubmit}>
-          Save Changes
-        </Button>
-      </Modal.Footer>
-    </Modal>
   );
 }

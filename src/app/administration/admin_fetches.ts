@@ -9,6 +9,7 @@ import {
   UserResponse,
   OrderResponse,
   MenuFormResponse,
+  IngredientListResponse,
 } from "./admin_types";
 
 export async function AdminSignin({
@@ -88,6 +89,23 @@ export async function FetchMenuForm(
     return response;
   } catch (err) {
     console.error("Failed to fetch menu form:", err);
+    return undefined;
+  }
+}
+
+export async function FetchIngredientList(
+  menuName: string
+): Promise<AxiosResponse<IngredientListResponse> | undefined> {
+  try {
+    const response = await axios.get<IngredientListResponse>(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/ingredients/${menuName}`,
+      {
+        validateStatus: () => true,
+      }
+    );
+    return response;
+  } catch (err) {
+    console.error("Failed to fetch ingredient list:", err);
     return undefined;
   }
 }

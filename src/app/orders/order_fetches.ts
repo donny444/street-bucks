@@ -50,7 +50,7 @@ export async function FetchReceipt(
 ): Promise<AxiosResponse<Blob> | undefined> {
   try {
     const response = await axios.get<Blob>(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/orders/${uuid}/receipt`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/orders/receipt/${uuid}`,
       {
         headers: {
           "branch-token": localStorage.getItem("branch-token"),

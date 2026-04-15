@@ -140,7 +140,7 @@ export async function DeleteUser(
 ): Promise<AxiosResponse<GenericResponse> | undefined> {
   try {
     const response = await axios.post<GenericResponse>(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/users/${email}/removal`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/users/remove/${email}`,
       {
         editor: {
           email: editorEmail,

@@ -18,7 +18,7 @@ export async function AdminSignin({
 }: AdminSignInParams): Promise<AxiosResponse<AdminSignInResponse> | undefined> {
   try {
     const response = await axios.post<AdminSignInResponse>(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/users/sign-in/administrator`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/users/administrator/sign-in`,
       {
         email,
         password,
@@ -81,7 +81,7 @@ export async function FetchMenuForm(
 ): Promise<AxiosResponse<MenuFormResponse> | undefined> {
   try {
     const response = await axios.get<MenuFormResponse>(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/menus/${name}/form`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/menus/form/${name}`,
       {
         validateStatus: () => true,
       }
@@ -162,7 +162,7 @@ export async function FetchUsersByName(
 ): Promise<AxiosResponse<UserResponse> | undefined> {
   try {
     const response = await axios.get<UserResponse>(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/users/search`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/search/users`,
       {
         params: {
           name,
@@ -182,7 +182,7 @@ export async function FetchOrderByUuid(
 ): Promise<AxiosResponse<OrderResponse> | undefined> {
   try {
     const response = await axios.get<OrderResponse>(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/orders/${uuid}/find`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/orders/find/${uuid}`,
       {
         validateStatus: () => true,
       }

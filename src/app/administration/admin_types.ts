@@ -47,14 +47,22 @@ export interface MenuFormResponse {
   error?: string;
 }
 
-export interface IngredientEntry {
+export interface MenuIngredient {
   recipeId: string;
   amount: number;
 }
 
+export interface MenuIngredientsResponse {
+  message?: string;
+  menu_ingredients?: MenuIngredient[];
+  error?: string;
+}
+
+export type IngredientEntry = string;
+
 export interface IngredientListResponse {
   message?: string;
-  menu_ingredients?: IngredientEntry[];
+  ingredient_list?: IngredientEntry[];
   error?: string;
 }
 

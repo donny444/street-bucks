@@ -1,7 +1,7 @@
 const config = {
   singleQuote: false,
   trailingComma: "es5",
-  endOfLine: "lf",
+  endOfLine: "auto",
   tabWidth: 2,
 };
 

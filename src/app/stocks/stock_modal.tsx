@@ -27,7 +27,7 @@ export function StockModal({
 
   const router = useRouter();
 
-  const handleEdit = async (e: React.EventHandler) => {
+  const handleEdit = async (e: React.FormEvent) => {
     try {
       e.preventDefault();
 

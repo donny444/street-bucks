@@ -1,11 +1,9 @@
 services:
 
   database:
-    image: postgres:17-alpine
+    image: postgres:18-alpine
     env_file:
       - server/.env
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     container_name: database-container
     ports:
       - "5432:5432"
@@ -25,9 +23,7 @@ services:
     env_file:
       - server/.env
     environment:
-      DATABASE_URL: ${DOCKER_DATABASE_URL}
-      PORT: ${PORT}
-      BRANCH_JWT_SECRET: ${BRANCH_JWT_SECRET}
+      DATABASE_URL: ${DOCKER_DATABASE_URL:-postgresql://postgres:password@database:5432/street_bucks?schema=public}
     ports:
       - "8085:8085"
     depends_on:

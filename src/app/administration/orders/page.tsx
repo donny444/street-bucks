@@ -30,7 +30,7 @@ export default function OrderLookup(): React.JSX.Element {
     }
   }, [router]);
 
-  const findOrder = async (e: React.EventHandler) => {
+  const findOrder = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const foundOrder = await FetchOrderByUuid(uuid);

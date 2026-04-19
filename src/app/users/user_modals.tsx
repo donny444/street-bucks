@@ -6,7 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Modal, Button, Form, Alert } from "react-bootstrap";
 
 import { AddUser, AttendUser } from "./user_fetches";
-import { UserField } from "./[email]/page";
+import { UserField } from "./user_field";
 
 interface AttendModalProps {
   show: boolean;

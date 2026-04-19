@@ -30,7 +30,7 @@ export default function UserSearchByName(): React.JSX.Element {
     }
   }, [router]);
 
-  const handleSearch = async (e: React.EventHandler) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const fetchedUsers = await FetchUsersByName(searchTerm);

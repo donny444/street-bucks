@@ -82,55 +82,53 @@ export default function BranchSignIn() {
       className="d-flex align-items-center justify-content-center"
       style={{ minHeight: "100vh" }}
     >
-      <>
-        <NotifyModal
-          show={notifyModal}
-          onHide={() => setNotifyModal(false)}
-          title="Branch Fetching Error"
-          message={message}
-        />
-        <Row className="w-100 justify-content-center">
-          <Col md={6} lg={4}>
-            <Card className="shadow-sm">
-              <Card.Body>
-                <p className="h2 text-center mb-4">Branch Sign-In</p>
-                <Form onSubmit={handleSignIn}>
-                  <Form.Group className="mb-3" controlId="formBranchId">
-                    <Form.Label>Branch ID</Form.Label>
-                    <Form.Select
-                      value={branchId}
-                      onChange={(e) => setBranchId(Number(e.target.value))}
-                      required
-                    >
-                      {branchIds.map((br) => (
-                        <option key={br} value={br}>
-                          {br}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </Form.Group>
-                  <Form.Group className="mb-3" controlId="formPassword">
-                    <Form.Label>Password</Form.Label>
-                    <Form.Control
-                      type="password"
-                      placeholder="Enter password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </Form.Group>
+      <NotifyModal
+        show={notifyModal}
+        onHide={() => setNotifyModal(false)}
+        title="Branch Fetching Error"
+        message={message}
+      />
+      <Row className="w-100 justify-content-center">
+        <Col md={6} lg={4}>
+          <Card className="shadow-sm">
+            <Card.Body>
+              <p className="h2 text-center mb-4">Branch Sign-In</p>
+              <Form onSubmit={handleSignIn}>
+                <Form.Group className="mb-3" controlId="formBranchId">
+                  <Form.Label>Branch ID</Form.Label>
+                  <Form.Select
+                    value={branchId}
+                    onChange={(e) => setBranchId(Number(e.target.value))}
+                    required
+                  >
+                    {branchIds.map((br) => (
+                      <option key={br} value={br}>
+                        {br}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formPassword">
+                  <Form.Label>Password</Form.Label>
+                  <Form.Control
+                    type="password"
+                    placeholder="Enter password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </Form.Group>
 
-                  <div className="d-grid gap-2">
-                    <Button variant="primary" type="submit" disabled={loading}>
-                      {loading ? "Signing in..." : "Sign In"}
-                    </Button>
-                  </div>
-                </Form>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      </>
+                <Container className="d-grid gap-2">
+                  <Button variant="primary" type="submit" disabled={loading}>
+                    {loading ? "Signing in..." : "Sign In"}
+                  </Button>
+                </Container>
+              </Form>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
     </Container>
   );
 }

@@ -122,8 +122,8 @@ export default function Sidebar(): JSX.Element {
       `}</style>
 
       {/* Logo & Toggle */}
-      <div className="d-flex flex-column p-3 border-bottom border-light border-opacity-25">
-        <div
+      <Container className="d-flex flex-column p-3 border-bottom border-light border-opacity-25">
+        <Container
           className={`d-flex align-items-center mb-3 ${collapsed ? "justify-content-center" : "gap-2"}`}
         >
           <Image src={StreetBucksLogo} alt="logo" width={40} height={40} />
@@ -132,9 +132,9 @@ export default function Sidebar(): JSX.Element {
               STREETBUCKS
             </span>
           )}
-        </div>
+        </Container>
 
-        <button
+        <Button
           onClick={() => setCollapsed(!collapsed)}
           className="btn btn-link p-0 border-0 d-flex align-items-center text-white opacity-75 hover-opacity-100"
           style={{
@@ -148,8 +148,8 @@ export default function Sidebar(): JSX.Element {
             width={24}
             height={24}
           />
-        </button>
-      </div>
+        </Button>
+      </Container>
 
       {/* Navigation */}
       <Nav className="flex-column p-3 flex-grow-1">
@@ -165,7 +165,7 @@ export default function Sidebar(): JSX.Element {
       </Nav>
 
       {/* Footer */}
-      <div className="p-3 border-top border-light border-opacity-25 mt-auto">
+      <Container className="p-3 border-top border-light border-opacity-25 mt-auto">
         {!collapsed &&
           (adminToken ? (
             <Container className="d-flex flex-column gap-2 p-0">
@@ -216,7 +216,7 @@ export default function Sidebar(): JSX.Element {
               </Button>
             </Link>
           ))}
-      </div>
+      </Container>
     </Col>
   );
 }

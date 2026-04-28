@@ -241,9 +241,7 @@ function BranchUser({ user }: { user: User }): React.JSX.Element {
                 height={30}
               />
             </Button>
-            {user.attended ? (
-              <></>
-            ) : (
+            {!user.attended && (
               <Button onClick={() => setAttendModal(true)} variant="primary">
                 <Image
                   src={AttendIcon as StaticImageData}

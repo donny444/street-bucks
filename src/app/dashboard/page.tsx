@@ -108,7 +108,7 @@ function TopMenusChart() {
           {SortEnum.REVENUE}
         </Button>
       </ButtonGroup>
-      <div style={{ height: "90%", width: "100%", position: "relative" }}>
+      <Container style={{ height: "90%", width: "100%", position: "relative" }}>
         <PieChartSales
           pieChartData={pieChartData}
           pieChartOptions={{
@@ -118,7 +118,7 @@ function TopMenusChart() {
           }}
           sortBy={sortBy}
         />
-      </div>
+      </Container>
     </Container>
   );
 }
@@ -200,17 +200,15 @@ function PieChartSales({
     void fetchSalesData();
   }, [pieChartData, sortBy]);
 
-  return (
-    <>
-      {loading ? (
-        <p className="h3">Loading...</p>
-      ) : error ? (
-        <p className="h3">{error}</p>
-      ) : (
-        <Pie data={chartData} options={chartOptions} />
-      )}
-    </>
-  );
+  if (loading) {
+    return <p className="h3">Loading...</p>;
+  }
+
+  if (error) {
+    return <p className="h3">{error}</p>;
+  }
+
+  return <Pie data={chartData} options={chartOptions} />;
 }
 
 function SalesCountNumber() {
@@ -264,7 +262,7 @@ function SalesCountNumber() {
 
   return (
     <Container className="bg-white h-100 rounded-3 p-3 d-flex flex-column align-items-center justify-content-center">
-      <div
+      <ButtonGroup
         className="btn-group mb-3 w-100"
         role="group"
         aria-label="Time period"
@@ -298,7 +296,7 @@ function SalesCountNumber() {
         >
           {PeriodEnum.MONTHLY}
         </Button>
-      </div>
+      </ButtonGroup>
       <Container className="bg-danger text-white h-100 rounded-2 p-3 m-2 d-flex flex-column align-items-center justify-content-center">
         <p className="h2">{`${period} sales count`}</p>
         {loading ? (
@@ -318,7 +316,7 @@ function SalesByPeriodChart() {
 
   return (
     <Container className="bg-white h-100 rounded-3 p-3 d-flex flex-column">
-      <div
+      <ButtonGroup
         className="btn-group mb-3 w-100"
         role="group"
         aria-label="Time period"
@@ -343,9 +341,9 @@ function SalesByPeriodChart() {
         >
           {PeriodEnum.ANNUAL}
         </Button>
-      </div>
-      <div className="flex-grow-1" style={{ position: "relative" }}>
-        {period === PeriodEnum.WEEKLY || period === PeriodEnum.MONTHLY ? (
+      </ButtonGroup>
+      <Container className="flex-grow-1" style={{ position: "relative" }}>
+        {(period === PeriodEnum.WEEKLY || period === PeriodEnum.MONTHLY) && (
           <LineChartSales
             lineChartData={lineChartData}
             lineChartOptions={{
@@ -355,15 +353,11 @@ function SalesByPeriodChart() {
             }}
             period={period}
           />
-        ) : (
-          <></>
         )}
-        {period === PeriodEnum.ANNUAL ? (
+        {period === PeriodEnum.ANNUAL && (
           <BarChartSales barChartData={barChartData} />
-        ) : (
-          <></>
         )}
-      </div>
+      </Container>
     </Container>
   );
 }
@@ -469,17 +463,15 @@ function LineChartSales({
     void fetchSalesData();
   }, [period, lineChartData, lineChartOptions]);
 
-  return (
-    <>
-      {loading ? (
-        <p className="h3">Loading...</p>
-      ) : error ? (
-        <p className="h3">{error}</p>
-      ) : (
-        <Line data={chartData} options={chartOptions} />
-      )}
-    </>
-  );
+  if (loading) {
+    return <p className="h3">Loading...</p>;
+  }
+
+  if (error) {
+    return <p className="h3">{error}</p>;
+  }
+
+  return <Line data={chartData} options={chartOptions} />;
 }
 
 interface BarChartSalesProps {
@@ -552,22 +544,22 @@ function BarChartSales({ barChartData }: BarChartSalesProps) {
     void fetchSalesData();
   }, [barChartData, router]);
 
+  if (loading) {
+    return <p className="h3">Loading...</p>;
+  }
+
+  if (error) {
+    return <p className="h3">{error}</p>;
+  }
+
   return (
-    <>
-      {loading ? (
-        <p className="h3">Loading...</p>
-      ) : error ? (
-        <p className="h3">{error}</p>
-      ) : (
-        <Bar
-          data={chartData}
-          options={{
-            ...barChartOptions,
-            maintainAspectRatio: false,
-            responsive: true,
-          }}
-        />
-      )}
-    </>
+    <Bar
+      data={chartData}
+      options={{
+        ...barChartOptions,
+        maintainAspectRatio: false,
+        responsive: true,
+      }}
+    />
   );
 }

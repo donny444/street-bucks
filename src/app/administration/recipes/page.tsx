@@ -95,7 +95,6 @@ export default function AdminRecipes(): React.JSX.Element {
           ))
         )}
       </Row>
-
       {selectedRecipe && (
         <EditRecipeModal
           show={showEditModal}

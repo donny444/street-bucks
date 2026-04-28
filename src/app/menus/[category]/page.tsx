@@ -43,21 +43,19 @@ export default function MenusByCategory({
 
   return (
     <Container>
-      <>
-        <NotifyModal
-          show={notifyModal}
-          onHide={() => setNotifyModal(false)}
-          title="Menu Fetching Error"
-          message={message}
-        />
-        <Row>
-          {menus.map((menu) => (
-            <Col key={menu.name} xs={12} sm={6} md={4} lg={3} className="mb-4">
-              <MenuCard menu={menu} />
-            </Col>
-          ))}
-        </Row>
-      </>
+      <NotifyModal
+        show={notifyModal}
+        onHide={() => setNotifyModal(false)}
+        title="Menu Fetching Error"
+        message={message}
+      />
+      <Row>
+        {menus.map((menu) => (
+          <Col key={menu.name} xs={12} sm={6} md={4} lg={3} className="mb-4">
+            <MenuCard menu={menu} />
+          </Col>
+        ))}
+      </Row>
     </Container>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-import { useRouter } from "next/navigation";
+import { useRouter, notFound } from "next/navigation";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
@@ -52,6 +52,9 @@ export default function OrderDetail({
       if (fetchedOrder?.status === 401) {
         localStorage.removeItem("branch-token");
         router.push("/branches");
+      }
+      if (fetchedOrder?.status === 404) {
+        notFound();
       }
 
       const responseBody = fetchedOrder?.data;

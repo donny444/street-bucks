@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { MenuCategory } from "./menu_types";
+import { MenuCategory } from "../menu_types";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Col, Button } from "react-bootstrap";

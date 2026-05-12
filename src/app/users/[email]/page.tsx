@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-import { useRouter } from "next/navigation";
+import { useRouter, notFound } from "next/navigation";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Button, Card, Alert, Form } from "react-bootstrap";
@@ -57,6 +57,9 @@ export default function UserDetail({
       if (fetchedUser?.status === 401) {
         localStorage.removeItem("branch-token");
         router.push("/branches");
+      }
+      if (fetchedUser?.status === 404) {
+        notFound();
       }
 
       const responseBody = fetchedUser?.data;

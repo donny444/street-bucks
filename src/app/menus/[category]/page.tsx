@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 
+import { notFound } from "next/navigation";
+
 import { FetchMenusByCategory } from "../menu_fetches";
 import { Menu, MenuCategory } from "../menu_types";
 import { MenuModal } from "../menu_modals";
@@ -27,6 +29,9 @@ export default function MenusByCategory({
       if (!fetchedMenus) {
         setMessage(`Failed to load ${menuCategory} menus.`);
         setNotifyModal(true);
+      }
+      if (fetchedMenus?.status === 404) {
+        notFound();
       }
 
       const responseBody = fetchedMenus?.data;

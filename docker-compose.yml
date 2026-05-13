@@ -23,7 +23,7 @@ services:
     env_file:
       - server/.env
     environment:
-      DATABASE_URL: ${DOCKER_DATABASE_URL:-postgresql://postgres:password@database:5432/street_bucks?schema=public}
+      DATABASE_URL: ${DOCKER_DATABASE_URL}
     ports:
       - "8085:8085"
     depends_on:

@@ -3,9 +3,10 @@
 import { useRouter } from "next/navigation";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Card, Button, Form, Container } from "react-bootstrap";
+import { Card, Button, Form, Container, Alert } from "react-bootstrap";
 
 import { NotifyModal } from "@/app/components/modals";
 
@@ -21,6 +22,8 @@ import {
   FetchIngredientList,
   EditMenu,
 } from "../../admin_fetches";
+
+const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
 export default function MenuDetailsPage({
   params,
@@ -43,11 +46,11 @@ export default function MenuDetailsPage({
 
   return (
     <Container>
+      {error && <Alert variant="danger">{message}</Alert>}
       <EditMenuCard
         name={menuName}
         message={message}
         setMessage={setMessage}
-        error={error}
         setError={setError}
         notifyModal={notifyModal}
         setNotifyModal={setNotifyModal}
@@ -60,7 +63,6 @@ interface EditMenuCardProps {
   name: string;
   message: string;
   setMessage: (msg: string) => void;
-  error: boolean;
   setError: (err: boolean) => void;
   notifyModal: boolean;
   setNotifyModal: (notify: boolean) => void;
@@ -69,7 +71,6 @@ function EditMenuCard({
   name,
   message,
   setMessage,
-  error,
   setError,
   notifyModal,
   setNotifyModal,
@@ -168,17 +169,42 @@ function EditMenuCard({
                   setMenuForm((prev) =>
                     prev
                       ? {
-                          ...prev,
-                          file: (e.target as HTMLInputElement).files
-                            ? (e.target as HTMLInputElement).files![0]
-                            : null,
-                        }
+                        ...prev,
+                        file: (e.target as HTMLInputElement).files
+                          ? (e.target as HTMLInputElement).files![0]
+                          : null,
+                      }
                       : prev
                   )
                 }
               />
             </Form.Group>
-            <Button variant="primary" type="submit" className="w-100">
+            <Form.Group className="mb-3" controlId="formMenuNote">
+              <Form.Label>Note (Optional)</Form.Label>
+              <div data-color-mode="light">
+                <MDEditor
+                  value={menuForm?.note || ""}
+                  onChange={(val) =>
+                    setMenuForm((prev) =>
+                      prev ? { ...prev, note: val || "" } : prev
+                    )
+                  }
+                  preview="edit"
+                />
+              </div>
+            </Form.Group>
+            {menuForm && (
+              <EditIngredientsSection
+                name={name}
+                message={message}
+                setMessage={setMessage}
+                setError={setError}
+                setNotifyModal={setNotifyModal}
+                menuForm={menuForm}
+                setMenuForm={setMenuForm}
+              />
+            )}
+            <Button variant="primary" type="submit" className="w-100 mt-3">
               Save Changes
             </Button>
           </Form>
@@ -188,49 +214,27 @@ function EditMenuCard({
   );
 }
 
-interface EditIngredientsCardProps {
+interface EditIngredientsSectionProps {
   name: string;
   message: string;
   setMessage: (msg: string) => void;
-  error: boolean;
   setError: (err: boolean) => void;
-  notifyModal: boolean;
   setNotifyModal: (notify: boolean) => void;
+  menuForm: MenuForm;
+  setMenuForm: React.Dispatch<React.SetStateAction<MenuForm | undefined>>;
 }
-function EditIngredientsCard({
+function EditIngredientsSection({
   name,
   message,
   setMessage,
-  error,
   setError,
-  notifyModal,
   setNotifyModal,
-}: EditIngredientsCardProps): React.JSX.Element {
-  const [menuIngredients, setMenuIngredients] = useState<MenuIngredient[]>([]);
+  menuForm,
+  setMenuForm,
+}: EditIngredientsSectionProps): React.JSX.Element {
   const [ingredientList, setIngredientList] = useState<IngredientEntry[]>([]);
 
   useEffect(() => {
-    const loadMenuingredients = async () => {
-      const fetchedMenuIngredients = await FetchMenuIngredients(name);
-      if (!fetchedMenuIngredients) {
-        setMessage("Failed to load menu ingredients.");
-        setError(true);
-        setNotifyModal(true);
-        return;
-      }
-
-      const responseBody = fetchedMenuIngredients.data;
-      if (responseBody?.error) {
-        setMessage(responseBody.error);
-        setError(true);
-        setNotifyModal(true);
-      }
-      if (responseBody?.menu_ingredients) {
-        setMenuIngredients(responseBody.menu_ingredients);
-      }
-    };
-    void loadMenuingredients();
-
     const loadIngredientList = async () => {
       const fetchedIngredientList = await FetchIngredientList();
       if (!fetchedIngredientList) {
@@ -251,66 +255,47 @@ function EditIngredientsCard({
       }
     };
     void loadIngredientList();
-  }, [name, setMessage, setError, setNotifyModal]);
-
-  const handleEdit = async (e: React.FormEvent) => {
-    e.preventDefault();
-  };
+  }, [setMessage, setError, setNotifyModal]);
 
   return (
-    <>
-      <NotifyModal
-        show={notifyModal}
-        onHide={() => setNotifyModal(false)}
-        title="Menu Ingredients Error"
-        message={message}
-      />
-      <Card className="w-75 mx-auto mt-3">
-        <Card.Header>Edit Menu Ingredients</Card.Header>
-        <Card.Body>
-          <Form onSubmit={handleEdit}>
-            {menuIngredients.map((ing, index) => (
-              <IngredientField
-                key={index}
-                currentIngredient={ing}
-                ingredientList={ingredientList}
-                onAmountChange={(newAmount) =>
-                  setMenuIngredients((prev) =>
-                    prev.map((ing, ind) =>
-                      ind === index ? { ...ing, amount: newAmount } : ing
-                    )
-                  )
-                }
-                onRemove={(recipeId) =>
-                  setMenuIngredients((prev) =>
-                    prev.filter((ing) => ing.recipeId !== recipeId)
-                  )
-                }
-              />
-            ))}
-            {menuIngredients.length >= 0 && menuIngredients.length < 8 ? (
-              <Button
-                variant="success"
-                onClick={() =>
-                  setMenuIngredients((prev) => [
-                    ...prev,
-                    { recipeId: "", amount: 0 } as MenuIngredient,
-                  ])
-                }
-                className="w-100"
-              >
-                Add Ingredient
-              </Button>
-            ) : (
-              <></>
-            )}
-            <Button variant="primary" type="submit" className="w-100">
-              Save Changes
-            </Button>
-          </Form>
-        </Card.Body>
-      </Card>
-    </>
+    <div className="mt-4">
+      <h5>Menu Ingredients</h5>
+      {menuForm.ingredient?.map((ing, index) => {
+        return (
+          <IngredientField
+            key={index}
+            currentIngredient={ing}
+            ingredientList={ingredientList}
+            onAmountChange={(newAmount) => {
+              setMenuForm((prev) => prev ? { ...prev, ingredient: prev.ingredient.map((i, ind) => ind === index ? { ...i, amount: newAmount } : i) } : prev);
+            }}
+            onRecipeChange={(newRecipeId) => {
+              setMenuForm((prev) => prev ? { ...prev, ingredient: prev.ingredient.map((i, ind) => ind === index ? { ...i, recipeId: newRecipeId } : i) } : prev);
+            }}
+            onRemove={() => {
+              setMenuForm((prev) => prev ? { ...prev, ingredient: prev.ingredient.filter((_, ind) => ind !== index) } : prev);
+            }}
+          />
+        );
+      })}
+      {(menuForm.ingredient?.length || 0) >= 0 && (menuForm.ingredient?.length || 0) < 10 ? (
+        <Button
+          variant="success"
+          onClick={() =>
+            setMenuForm((prev) => prev ? {
+              ...prev,
+              ingredient: [
+                ...(prev.ingredient || []),
+                { recipeId: ingredientList[0] || "", amount: 1 } as MenuIngredient,
+              ]
+            } : prev)
+          }
+          className="w-100"
+        >
+          Add Ingredient
+        </Button>
+      ) : null}
+    </div>
   );
 }
 
@@ -318,25 +303,23 @@ function IngredientField({
   currentIngredient,
   ingredientList,
   onAmountChange,
+  onRecipeChange,
   onRemove,
 }: {
   currentIngredient: MenuIngredient;
   ingredientList: IngredientEntry[];
   onAmountChange: (newAmount: number) => void;
-  onRemove: (recipeId: string) => void;
+  onRecipeChange: (newRecipeId: string) => void;
+  onRemove: () => void;
 }): React.JSX.Element {
-  const [currentRecipe, setCurrentRecipe] = useState<string>(
-    currentIngredient.recipeId
-  );
-
   return (
     <Form.Group
       className="d-flex gap-2 mb-3"
       controlId={`formIngredient_${currentIngredient.recipeId}`}
     >
       <Form.Select
-        value={currentRecipe}
-        onChange={(e) => setCurrentRecipe(e.target.value)}
+        value={currentIngredient.recipeId}
+        onChange={(e) => onRecipeChange(e.target.value)}
       >
         {ingredientList.map((ing, ind) => (
           <option key={ind} value={ing}>
@@ -353,7 +336,7 @@ function IngredientField({
       />
       <Button
         variant="danger"
-        onClick={() => onRemove(currentIngredient.recipeId)}
+        onClick={onRemove}
       >
         Remove
       </Button>

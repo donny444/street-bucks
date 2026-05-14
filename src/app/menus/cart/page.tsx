@@ -38,10 +38,10 @@ export default function CartPage(): React.JSX.Element {
   return (
     <Container className="bg-light p-3">
       <Row>
-        <Col xs={12} md={9} className="mx-0">
+        <Col xs={12} md={9}>
           <CartTable cart={cart} />
         </Col>
-        <Col xs={12} md={3} className="mx-0">
+        <Col xs={12} md={3}>
           <CartSummary cart={cart} />
         </Col>
       </Row>
@@ -88,7 +88,7 @@ function CartSummary({ cart }: CartSummaryProps): React.JSX.Element {
   };
 
   return (
-    <Container className="bg-white m-2 p-2 gap-2">
+    <Container className="bg-white px-4 py-2 gap-2">
       <Row>
         <p className="h2">Cart Summary</p>
       </Row>
@@ -99,7 +99,7 @@ function CartSummary({ cart }: CartSummaryProps): React.JSX.Element {
       <Row>
         <Button
           variant="primary"
-          className="w-100"
+          className="w-100 px-0 py-1"
           onClick={() => void handlePlaceOrder()}
         >
           Place Order

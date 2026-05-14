@@ -1,5 +1,8 @@
 import axios from "axios";
 import { AxiosResponse } from "axios";
+
+import { GenericResponse } from "../utils/global_types";
+
 import {
   AdminSignInParams,
   AdminSignInResponse,
@@ -11,6 +14,7 @@ import {
   MenuFormResponse,
   MenuIngredientsResponse,
   IngredientListResponse,
+  MenuForm,
 } from "./admin_types";
 
 export async function AdminSignin({
@@ -23,7 +27,10 @@ export async function AdminSignin({
       {
         email,
         password,
-      }
+      },
+      {
+        validateStatus: () => true,
+      },
     );
     return response;
   } catch (err) {
@@ -37,7 +44,13 @@ export async function FetchBranches(): Promise<
 > {
   try {
     const response = await axios.get<BranchResponse>(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/branches`
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/branches`,
+      {
+        headers: {
+          "admin-token": sessionStorage.getItem("admin-token"),
+        },
+        validateStatus: () => true,
+      }
     );
     return response;
   } catch (err) {
@@ -51,7 +64,13 @@ export async function AddBranch(): Promise<
 > {
   try {
     const response = await axios.post<BranchResponse>(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/branches`
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/branches`,
+      {
+        headers: {
+          "admin-token": sessionStorage.getItem("admin-token"),
+        },
+        validateStatus: () => true,
+      },
     );
     return response;
   } catch (err) {
@@ -67,6 +86,9 @@ export async function FetchAllMenus(): Promise<
     const response = await axios.get<MenuResponse>(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/menus`,
       {
+        headers: {
+          "admin-token": sessionStorage.getItem("admin-token"),
+        },
         validateStatus: () => true,
       }
     );
@@ -84,6 +106,9 @@ export async function FetchMenuForm(
     const response = await axios.get<MenuFormResponse>(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/menus/form/${name}`,
       {
+        headers: {
+          "admin-token": sessionStorage.getItem("admin-token"),
+        },
         validateStatus: () => true,
       }
     );
@@ -101,6 +126,9 @@ export async function FetchMenuIngredients(
     const response = await axios.get<MenuIngredientsResponse>(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/ingredients/${menuName}`,
       {
+        headers: {
+          "admin-token": sessionStorage.getItem("admin-token"),
+        },
         validateStatus: () => true,
       }
     );
@@ -118,6 +146,9 @@ export async function FetchIngredientList(): Promise<
     const response = await axios.get<IngredientListResponse>(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/ingredients`,
       {
+        headers: {
+          "admin-token": sessionStorage.getItem("admin-token"),
+        },
         validateStatus: () => true,
       }
     );
@@ -128,13 +159,71 @@ export async function FetchIngredientList(): Promise<
   }
 }
 
+export async function AddMenu(
+  data: MenuForm
+): Promise<AxiosResponse<GenericResponse> | undefined> {
+  try {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("price", data.price.toString());
+    formData.append("category", data.category);
+    if (data.note) {
+      formData.append("note", data.note);
+    }
+    if (data.ingredient && data.ingredient.length > 0) {
+      formData.append("ingredient", JSON.stringify(data.ingredient));
+    }
+    if (data.file) {
+      formData.append("file", data.file);
+    }
+
+    const response = await axios.post<GenericResponse>(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/menus`,
+      formData,
+      {
+        headers: {
+          "admin-token": sessionStorage.getItem("admin-token"),
+          "Content-Type": "multipart/form-data",
+        },
+        validateStatus: () => true,
+      },
+    );
+    return response;
+  } catch (err) {
+    console.error("Failed to add menu:", err);
+    return undefined;
+  }
+}
+
 export async function EditMenu(
-  data: MenuResponse
+  data: MenuForm,
+  originalName: string
 ): Promise<AxiosResponse<MenuResponse> | undefined> {
   try {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("price", data.price.toString());
+    formData.append("category", data.category);
+    if (data.note) {
+      formData.append("note", data.note);
+    }
+    if (data.ingredient && data.ingredient.length > 0) {
+      formData.append("ingredient", JSON.stringify(data.ingredient));
+    }
+    if (data.file) {
+      formData.append("file", data.file);
+    }
+
     const response = await axios.put<MenuResponse>(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/menus`,
-      data
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/menus/${originalName}`,
+      formData,
+      {
+        headers: {
+          "admin-token": sessionStorage.getItem("admin-token"),
+          "Content-Type": "multipart/form-data",
+        },
+        validateStatus: () => true,
+      },
     );
     return response;
   } catch (err) {
@@ -150,6 +239,9 @@ export async function FetchRecipes(): Promise<
     const response = await axios.get<RecipeResponse>(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/recipes`,
       {
+        headers: {
+          "admin-token": sessionStorage.getItem("admin-token"),
+        },
         validateStatus: () => true,
       }
     );
@@ -166,7 +258,13 @@ export async function UpdateRecipe(
   try {
     const response = await axios.put<RecipeResponse>(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/recipes`,
-      data
+      data,
+      {
+        headers: {
+          "admin-token": sessionStorage.getItem("admin-token"),
+        },
+        validateStatus: () => true,
+      },
     );
     return response;
   } catch (err) {
@@ -185,6 +283,9 @@ export async function FetchUsersByName(
         params: {
           name,
         },
+        headers: {
+          "admin-token": sessionStorage.getItem("admin-token"),
+        },
         validateStatus: () => true,
       }
     );
@@ -202,6 +303,9 @@ export async function FetchOrderByUuid(
     const response = await axios.get<OrderResponse>(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/orders/find/${uuid}`,
       {
+        headers: {
+          "admin-token": sessionStorage.getItem("admin-token"),
+        },
         validateStatus: () => true,
       }
     );

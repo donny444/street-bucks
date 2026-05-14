@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 import { useState, useEffect } from "react";
 
@@ -18,14 +19,19 @@ import {
 
 import { NotifyModal } from "@/app/components/modals";
 
-import { FetchAllMenus } from "../admin_fetches";
+import AddIcon from "@/static/icons/add_icon.svg";
+
+import { FetchAllMenus, AddMenu } from "../admin_fetches";
 import { Menu, MenuCategory } from "../admin_types";
+import { AddMenuModal } from "../admin_modals";
 
 export default function MenuManagementPage(): React.JSX.Element {
   const [message, setMessage] = useState<string>("");
   const [error, setError] = useState<boolean>(false);
   const [menus, setMenus] = useState<Menu[]>([]);
+
   const [notifyModal, setNotifyModal] = useState<boolean>(false);
+  const [addModal, setAddModal] = useState<boolean>(false);
 
   const router = useRouter();
 
@@ -61,14 +67,20 @@ export default function MenuManagementPage(): React.JSX.Element {
   }, []);
 
   return (
-    <Container>
+    <Container className="d-flex flex-column gap-2">
+      <AddMenuModal show={addModal} onHide={() => setAddModal(false)} />
       <NotifyModal
         show={notifyModal}
         onHide={() => setNotifyModal(false)}
         title="Menu Fetching Error"
         message={message}
       />
-      <p className="h2">Menu Management</p>
+      <Container className="d-flex justify-content-between align-items-center">
+        <p className="h2">Menu Management</p>
+        <Button variant="success" onClick={() => setAddModal(true)}>
+          <Image src={AddIcon} alt="Add Menu" width={40} height={40} />
+        </Button>
+      </Container>
       {error && <Alert variant="danger">{message}</Alert>}
       <Row>
         {menus.length < 1 ? (

@@ -39,6 +39,8 @@ export interface MenuForm {
   price: number;
   category: MenuCategory;
   file: File | null;
+  ingredient: MenuIngredient[];
+  note: string;
 }
 
 export interface MenuFormResponse {

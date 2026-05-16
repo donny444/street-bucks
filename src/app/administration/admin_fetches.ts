@@ -8,6 +8,8 @@ import {
   AdminSignInResponse,
   BranchResponse,
   MenuResponse,
+  RecipeForm,
+  RecipeFormResponse,
   RecipeResponse,
   UserResponse,
   OrderResponse,
@@ -30,7 +32,7 @@ export async function AdminSignin({
       },
       {
         validateStatus: () => true,
-      },
+      }
     );
     return response;
   } catch (err) {
@@ -70,7 +72,7 @@ export async function AddBranch(): Promise<
           "admin-token": sessionStorage.getItem("admin-token"),
         },
         validateStatus: () => true,
-      },
+      }
     );
     return response;
   } catch (err) {
@@ -186,7 +188,7 @@ export async function AddMenu(
           "Content-Type": "multipart/form-data",
         },
         validateStatus: () => true,
-      },
+      }
     );
     return response;
   } catch (err) {
@@ -223,7 +225,7 @@ export async function EditMenu(
           "Content-Type": "multipart/form-data",
         },
         validateStatus: () => true,
-      },
+      }
     );
     return response;
   } catch (err) {
@@ -252,23 +254,112 @@ export async function FetchRecipes(): Promise<
   }
 }
 
-export async function UpdateRecipe(
-  data: RecipeResponse
-): Promise<AxiosResponse<RecipeResponse> | undefined> {
+export async function FetchRecipeForm(
+  name: string
+): Promise<AxiosResponse<RecipeFormResponse> | undefined> {
   try {
-    const response = await axios.put<RecipeResponse>(
+    const response = await axios.get<RecipeResponse>(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/recipes`,
-      data,
       {
         headers: {
           "admin-token": sessionStorage.getItem("admin-token"),
         },
         validateStatus: () => true,
-      },
+      }
+    );
+
+    const foundRecipe = response.data.recipes?.find(
+      (recipe) => recipe.name === name
+    );
+
+    return {
+      ...response,
+      data: foundRecipe
+        ? {
+            recipe_form: {
+              name: foundRecipe.name,
+              unit: foundRecipe.unit,
+              imagePath: foundRecipe.imagePath,
+              file: null,
+            },
+          }
+        : {
+            error: `Recipe "${name}" not found.`,
+          },
+    } as AxiosResponse<RecipeFormResponse>;
+  } catch (err) {
+    console.error("Failed to fetch recipe form:", err);
+    return undefined;
+  }
+}
+
+export async function AddRecipe(
+  data: RecipeForm
+): Promise<AxiosResponse<GenericResponse> | undefined> {
+  try {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("unit", data.unit);
+    if (data.file) {
+      formData.append("file", data.file);
+    }
+
+    const response = await axios.post<GenericResponse>(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/recipes`,
+      formData,
+      {
+        headers: {
+          "admin-token": sessionStorage.getItem("admin-token"),
+          "Content-Type": "multipart/form-data",
+        },
+        validateStatus: () => true,
+      }
     );
     return response;
   } catch (err) {
-    console.error("Failed to update recipe:", err);
+    console.error("Failed to add recipe:", err);
+    return undefined;
+  }
+}
+
+export async function EditRecipe(
+  data: RecipeForm,
+  originalName: string
+): Promise<AxiosResponse<GenericResponse> | undefined> {
+  try {
+    const recipeUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/recipes/${encodeURIComponent(originalName)}`;
+    if (!data.file) {
+      const response = await axios.put<GenericResponse>(
+        recipeUrl,
+        {
+          name: data.name,
+          unit: data.unit,
+        },
+        {
+          headers: {
+            "admin-token": sessionStorage.getItem("admin-token"),
+          },
+          validateStatus: () => true,
+        }
+      );
+      return response;
+    }
+
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("unit", data.unit);
+    formData.append("file", data.file);
+
+    const response = await axios.put<GenericResponse>(recipeUrl, formData, {
+      headers: {
+        "admin-token": sessionStorage.getItem("admin-token"),
+        "Content-Type": "multipart/form-data",
+      },
+      validateStatus: () => true,
+    });
+    return response;
+  } catch (err) {
+    console.error("Failed to edit recipe:", err);
     return undefined;
   }
 }

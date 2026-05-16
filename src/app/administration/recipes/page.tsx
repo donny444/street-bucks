@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { FetchRecipes, UpdateRecipe } from "../admin_fetches";
+import Image from "next/image";
+import { FetchRecipes } from "../admin_fetches";
 import { Recipe } from "../admin_types";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
@@ -12,19 +13,20 @@ import {
   Card,
   Button,
   Alert,
-  Modal,
-  Form,
   ButtonGroup,
 } from "react-bootstrap";
 import { NotifyModal } from "@/app/components/modals";
+import AddIcon from "@/static/icons/add_icon.svg";
+import { AddRecipeModal } from "../admin_modals";
 
 export default function AdminRecipes(): React.JSX.Element {
   const [message, setMessage] = useState<string>("");
   const [error, setError] = useState<boolean>(false);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+
   const [notifyModal, setNotifyModal] = useState<boolean>(false);
-  const [showEditModal, setShowEditModal] = useState<boolean>(false);
-  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [addModal, setAddModal] = useState<boolean>(false);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -58,31 +60,21 @@ export default function AdminRecipes(): React.JSX.Element {
     void loadRecipes();
   }, []);
 
-  const handleEditClick = (recipe: Recipe) => {
-    setSelectedRecipe(recipe);
-    setShowEditModal(true);
-  };
-
-  const handleSaveRecipe = async (updatedRecipe: Recipe) => {
-    const res = await UpdateRecipe({ recipes: [updatedRecipe] });
-    if (res && !res.data.error) {
-      void loadRecipes();
-      setShowEditModal(false);
-    } else {
-      setMessage("Failed to update recipe");
-      setNotifyModal(true);
-    }
-  };
-
   return (
-    <Container>
+    <Container className="d-flex flex-column gap-2">
+      <AddRecipeModal show={addModal} onHide={() => setAddModal(false)} />
       <NotifyModal
         show={notifyModal}
         onHide={() => setNotifyModal(false)}
         title="Recipe Fetching Error"
         message={message}
       />
-      <p className="h2">Recipe Management</p>
+      <Container className="d-flex justify-content-between align-items-center">
+        <p className="h2">Recipe Management</p>
+        <Button variant="success" onClick={() => setAddModal(true)}>
+          <Image src={AddIcon} alt="Add Recipe" width={40} height={40} />
+        </Button>
+      </Container>
       {error && <Alert variant="danger">{message}</Alert>}
       <Row>
         {recipes.length < 1 ? (
@@ -90,30 +82,16 @@ export default function AdminRecipes(): React.JSX.Element {
         ) : (
           recipes.map((r) => (
             <Col key={r.name} xs={12} sm={6} md={4} lg={3} className="mb-4">
-              <RecipeCard recipe={r} onEdit={() => handleEditClick(r)} />
+              <RecipeCard recipe={r} />
             </Col>
           ))
         )}
       </Row>
-      {selectedRecipe && (
-        <EditRecipeModal
-          show={showEditModal}
-          onHide={() => setShowEditModal(false)}
-          recipe={selectedRecipe}
-          onSave={handleSaveRecipe}
-        />
-      )}
     </Container>
   );
 }
 
-function RecipeCard({
-  recipe,
-  onEdit,
-}: {
-  recipe: Recipe;
-  onEdit: () => void;
-}): React.JSX.Element {
+function RecipeCard({ recipe }: { recipe: Recipe }): React.JSX.Element {
   return (
     <Card className="h-100">
       <Card.Img
@@ -127,7 +105,11 @@ function RecipeCard({
         <Card.Title>{recipe.name}</Card.Title>
         <Card.Text>Unit: {recipe.unit}</Card.Text>
         <ButtonGroup className="w-100">
-          <Button variant="warning" onClick={onEdit} className="w-50">
+          <Button
+            variant="warning"
+            href={`/administration/recipes/${encodeURIComponent(recipe.name)}`}
+            className="w-50"
+          >
             Edit
           </Button>
           <Button variant="danger" className="w-50">
@@ -136,78 +118,5 @@ function RecipeCard({
         </ButtonGroup>
       </Card.Body>
     </Card>
-  );
-}
-
-function EditRecipeModal({
-  show,
-  onHide,
-  recipe,
-  onSave,
-}: {
-  show: boolean;
-  onHide: () => void;
-  recipe: Recipe;
-  onSave: (r: Recipe) => void;
-}) {
-  const [formData, setFormData] = useState<Recipe>(recipe);
-
-  useEffect(() => {
-    setFormData(recipe);
-  }, [recipe]);
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = () => {
-    onSave(formData);
-  };
-
-  return (
-    <Modal show={show} onHide={onHide}>
-      <Modal.Header closeButton>
-        <Modal.Title>Edit Recipe: {recipe.name}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <Form>
-          <Form.Group className="mb-3">
-            <Form.Label>Name</Form.Label>
-            <Form.Control type="text" name="name" value={formData.name} />
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Unit</Form.Label>
-            <Form.Control
-              type="text"
-              name="unit"
-              value={formData.unit}
-              onChange={handleChange}
-            />
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Image Path</Form.Label>
-            <Form.Control
-              type="text"
-              name="imagePath"
-              value={formData.imagePath}
-              onChange={handleChange}
-            />
-          </Form.Group>
-        </Form>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
-          Close
-        </Button>
-        <Button variant="primary" onClick={handleSubmit}>
-          Save Changes
-        </Button>
-      </Modal.Footer>
-    </Modal>
   );
 }

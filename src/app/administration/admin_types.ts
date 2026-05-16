@@ -74,9 +74,22 @@ export interface Recipe {
   imagePath: string;
 }
 
+export interface RecipeForm {
+  name: string;
+  unit: string;
+  file: File | null;
+  imagePath?: string;
+}
+
 export interface RecipeResponse {
   message?: string;
   recipes?: Recipe[];
+  error?: string;
+}
+
+export interface RecipeFormResponse {
+  message?: string;
+  recipe_form?: RecipeForm;
   error?: string;
 }
 

@@ -7,8 +7,14 @@ import dynamic from "next/dynamic";
 
 import { Modal, Button, Form, Alert } from "react-bootstrap";
 
-import { MenuCategory, MenuForm, MenuIngredient, IngredientEntry } from "./admin_types";
-import { AddMenu, FetchIngredientList } from "./admin_fetches";
+import {
+  MenuCategory,
+  MenuForm,
+  MenuIngredient,
+  IngredientEntry,
+  RecipeForm,
+} from "./admin_types";
+import { AddMenu, AddRecipe, FetchIngredientList } from "./admin_fetches";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
@@ -30,6 +36,134 @@ export function AddMenuModal({ show, onHide }: AddMenuModalProps): React.JSX.Ele
         <AddMenuForm message={message} setMessage={setMessage} error={error} setError={setError} onHide={onHide} />
       </Modal.Body>
     </Modal>
+  );
+}
+
+interface AddRecipeModalProps {
+  show: boolean;
+  onHide: () => void;
+}
+export function AddRecipeModal({
+  show,
+  onHide,
+}: AddRecipeModalProps): React.JSX.Element {
+  const [message, setMessage] = useState<string>("");
+  const [error, setError] = useState<boolean>(false);
+
+  return (
+    <Modal show={show} onHide={onHide}>
+      <Modal.Header closeButton>
+        {error && <Alert variant="danger">{message}</Alert>}
+        <Modal.Title>Add Recipe</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <AddRecipeForm
+          setMessage={setMessage}
+          setError={setError}
+          onHide={onHide}
+        />
+      </Modal.Body>
+    </Modal>
+  );
+}
+
+interface AddRecipeFormProps {
+  setMessage: (message: string) => void;
+  setError: (error: boolean) => void;
+  onHide: () => void;
+}
+function AddRecipeForm({
+  setMessage,
+  setError,
+  onHide,
+}: AddRecipeFormProps): React.JSX.Element {
+  const [recipeForm, setRecipeForm] = useState<RecipeForm>({
+    name: "",
+    unit: "",
+    file: null,
+  });
+
+  const router = useRouter();
+
+  const handleAddRecipe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (recipeForm.name.trim() === "") {
+      setMessage("Recipe name is required.");
+      setError(true);
+      return;
+    }
+    if (recipeForm.unit.trim() === "") {
+      setMessage("Recipe unit is required.");
+      setError(true);
+      return;
+    }
+    if (!recipeForm.file) {
+      setMessage("Recipe image file is required.");
+      setError(true);
+      return;
+    }
+
+    const addedRecipe = await AddRecipe(recipeForm);
+    if (!addedRecipe) {
+      setMessage("Failed to add recipe.");
+      setError(true);
+      return;
+    }
+    const responseBody = addedRecipe.data;
+    if (responseBody?.error) {
+      setMessage(responseBody.error);
+      setError(true);
+      return;
+    }
+    if (responseBody?.message) {
+      setError(false);
+      onHide();
+      router.refresh();
+    }
+  };
+
+  return (
+    <Form onSubmit={(e) => void handleAddRecipe(e)}>
+      <Form.Group className="mb-3" controlId="formRecipeName">
+        <Form.Label>Recipe Name</Form.Label>
+        <Form.Control
+          type="text"
+          placeholder="Enter recipe name"
+          value={recipeForm.name}
+          onChange={(e) =>
+            setRecipeForm((prev) => ({ ...prev, name: e.target.value }))
+          }
+        />
+      </Form.Group>
+      <Form.Group className="mb-3" controlId="formRecipeUnit">
+        <Form.Label>Unit</Form.Label>
+        <Form.Control
+          type="text"
+          placeholder="Enter recipe unit"
+          value={recipeForm.unit}
+          onChange={(e) =>
+            setRecipeForm((prev) => ({ ...prev, unit: e.target.value }))
+          }
+        />
+      </Form.Group>
+      <Form.Group className="mb-3" controlId="formRecipeImage">
+        <Form.Label>Upload Image File</Form.Label>
+        <Form.Control
+          type="file"
+          onChange={(e) =>
+            setRecipeForm((prev) => ({
+              ...prev,
+              file: (e.target as HTMLInputElement).files
+                ? (e.target as HTMLInputElement).files![0]
+                : null,
+            }))
+          }
+        />
+      </Form.Group>
+      <Button variant="primary" type="submit" className="w-100 mt-3">
+        Add Recipe
+      </Button>
+    </Form>
   );
 }
 

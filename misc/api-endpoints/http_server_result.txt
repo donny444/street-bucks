@@ -1,3 +1,56 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:1dba948148210ac8ab016c84a4ee388ca9f8e74666dfb20b0eb8ea3a7c759655
-size 3866
+[Nest] LOG [NestFactory] Starting Nest application...
+[Nest] LOG [InstanceLoader] AppModule dependencies initialized +29ms
+[Nest] LOG [RoutesResolver] AssetController {/assets}: +17ms
+[Nest] LOG [RouterExplorer] Mapped {/assets/menus/:filename, GET} route +5ms
+[Nest] LOG [RouterExplorer] Mapped {/assets/recipes/:filename, GET} route +3ms
+[Nest] LOG [RoutesResolver] BranchController {/branches}: +2ms
+[Nest] LOG [RouterExplorer] Mapped {/branches/sign-in, POST} route +1ms
+[Nest] LOG [RouterExplorer] Mapped {/branches, POST} route +1ms
+[Nest] LOG [RouterExplorer] Mapped {/branches, GET} route +1ms
+[Nest] LOG [RoutesResolver] IngredientController {/ingredients}: +1ms
+[Nest] LOG [RouterExplorer] Mapped {/ingredients, PUT} route +1ms
+[Nest] LOG [RouterExplorer] Mapped {/ingredients/:name, GET} route +2ms
+[Nest] LOG [RouterExplorer] Mapped {/ingredients, GET} route +1ms
+[Nest] LOG [RoutesResolver] InsightController {/insights}: +1ms
+[Nest] LOG [RouterExplorer] Mapped {/insights/sales-today, GET} route +1ms
+[Nest] LOG [RouterExplorer] Mapped {/insights/sales-this-week, GET} route +1ms
+[Nest] LOG [RouterExplorer] Mapped {/insights/sales-this-month, GET} route +7ms
+[Nest] LOG [RouterExplorer] Mapped {/insights/top-menus-by-quantity, GET} route +4ms
+[Nest] LOG [RouterExplorer] Mapped {/insights/top-menus-by-revenue, GET} route +1ms
+[Nest] LOG [RouterExplorer] Mapped {/insights/sales-in-week, GET} route +2ms
+[Nest] LOG [RouterExplorer] Mapped {/insights/sales-in-month, GET} route +3ms
+[Nest] LOG [RouterExplorer] Mapped {/insights/sales-in-year, GET} route +3ms
+[Nest] LOG [RoutesResolver] MenuController {/menus}: +1ms
+[Nest] LOG [RouterExplorer] Mapped {/menus/hot, GET} route +3ms
+[Nest] LOG [RouterExplorer] Mapped {/menus/iced, GET} route +1ms
+[Nest] LOG [RouterExplorer] Mapped {/menus/bakery, GET} route +2ms
+[Nest] LOG [RouterExplorer] Mapped {/menus, GET} route +2ms
+[Nest] LOG [RouterExplorer] Mapped {/menus/:name, GET} route +2ms
+[Nest] LOG [RouterExplorer] Mapped {/menus/form/:name, GET} route +2ms
+[Nest] LOG [RouterExplorer] Mapped {/menus/:name, PUT} route +1ms
+[Nest] LOG [RouterExplorer] Mapped {/menus, POST} route +2ms
+[Nest] LOG [RouterExplorer] Mapped {/menus/remove/:name, DELETE} route +1ms
+[Nest] LOG [RoutesResolver] OrderController {/orders}: +1ms
+[Nest] LOG [RouterExplorer] Mapped {/orders, POST} route +4ms
+[Nest] LOG [RouterExplorer] Mapped {/orders, GET} route +1ms
+[Nest] LOG [RouterExplorer] Mapped {/orders/:uuid, GET} route +1ms
+[Nest] LOG [RouterExplorer] Mapped {/orders/find/:uuid, GET} route +2ms
+[Nest] LOG [RouterExplorer] Mapped {/orders/receipt/:uuid, GET} route +3ms
+[Nest] LOG [RoutesResolver] RecipeController {/recipes}: +1ms
+[Nest] LOG [RouterExplorer] Mapped {/recipes, GET} route +4ms
+[Nest] LOG [RouterExplorer] Mapped {/recipes, POST} route +1ms
+[Nest] LOG [RouterExplorer] Mapped {/recipes/:name, PUT} route +1ms
+[Nest] LOG [RouterExplorer] Mapped {/recipes/:name, DELETE} route +2ms
+[Nest] LOG [RoutesResolver] StockController {/stocks}: +0ms
+[Nest] LOG [RouterExplorer] Mapped {/stocks, PUT} route +1ms
+[Nest] LOG [RouterExplorer] Mapped {/stocks, GET} route +1ms
+[Nest] LOG [RoutesResolver] UserController {/users}: +1ms
+[Nest] LOG [RouterExplorer] Mapped {/users, POST} route +3ms
+[Nest] LOG [RouterExplorer] Mapped {/users/:email, POST} route +2ms
+[Nest] LOG [RouterExplorer] Mapped {/users/administrator/sign-in, POST} route +1ms
+[Nest] LOG [RouterExplorer] Mapped {/users/search, GET} route +1ms
+[Nest] LOG [RouterExplorer] Mapped {/users/:email, GET} route +2ms
+[Nest] LOG [RouterExplorer] Mapped {/users/:email, PUT} route +5ms
+[Nest] LOG [RouterExplorer] Mapped {/users/remove/:email, POST} route +1ms
+[Nest] LOG [RouterExplorer] Mapped {/users, GET} route +3ms
+[Nest] LOG [NestApplication] Nest application successfully started +8ms

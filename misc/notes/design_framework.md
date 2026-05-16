@@ -1,3 +1,6 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:91e13616edf2e1bf60f28c27e0f8266cd01c64884af76cf0bbdf058920709ab9
-size 308
+## References
+[Beige Color: Hex Code, Palettes &amp; Meaning | Figma](https://www.figma.com/colors/beige/)
+
+[Mint Green Color: Hex Code, Palettes &amp; Meaning | Figma](https://www.figma.com/colors/mint-green/)
+
+[UI design framework guide](https://chatgpt.com/share/693bdc50-e160-800e-b123-d21532432041)

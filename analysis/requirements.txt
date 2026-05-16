@@ -1,3 +1,25 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:fe58e0b11e4f9796d6ae88e53c482371e96eb2015f04ed8de659f081bc726af7
-size 413
+# Street Bucks Business Analysis - Python Dependencies
+
+# Data manipulation
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Database connectivity
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+python-dotenv>=1.0.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.15.0
+
+# Statistical analysis
+scipy>=1.10.0
+
+# Excel export support
+openpyxl>=3.1.0
+
+# Jupyter support
+ipykernel>=6.25.0
+nbformat>=5.9.0

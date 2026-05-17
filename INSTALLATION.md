@@ -23,3 +23,5 @@
 4. ติดตั้ง Docker และ Docker Compose โดยใช้ shell script ใน `docker_installation.sh` หรือ batch script `docker_installation.bat` (สำหรับ Windows) เนื่องจากเป็นสิ่งที่จำเป็นในการรันแอปพลิเคชัน
 5. รันคำสั่ง: `docker compose up -d` เพื่อเริ่มต้นคอนเทนเนอร์ที่รันแอปพลิเคชัน
 6. อนุญาตให้เครื่องลูกข่าย (Client Devices) เข้าถึงเว็บแอปพลิเคชันผ่านชื่อโดเมนที่ได้ตั้งค่าไว้บนเซิร์ฟเวอร์ของคุณ
+
+---
